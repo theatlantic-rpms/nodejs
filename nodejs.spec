@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 0.10.5
-Release: 3%{?dist}
+Version: 0.10.6
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -188,6 +188,10 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Wed May 15 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.6-1
+- new upstream release 0.10.6
+  http://blog.nodejs.org/2013/05/14/node-v0-10-6-stable/
+
 * Mon May 06 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.5-3
 - nodejs-fixdep: work properly when a package has no dependencies
 
