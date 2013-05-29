@@ -23,6 +23,9 @@ Source5: nodejs-symlink-deps
 Source6: nodejs-fixdep
 Source7: nodejs_native.attr
 
+# Disable running gyp on bundled deps we don't use
+Patch1: nodejs-disable-gyp-deps.patch
+
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME,
 # so we need to be more explicit until spot fixes that
 %global v8_ge 1:3.14.5.7
@@ -79,28 +82,9 @@ The API documentation for the Node.js JavaScript runtime.
 
 %prep
 %setup -q -n node-v%{version}
+%patch1 -p0
 
-# Make sure nothing gets included from bundled deps:
-# We only delete the source and header files, because
-# the remaining build scripts are still used.
-
-find deps/cares -name "*.c" -exec rm -f {} \;
-find deps/cares -name "*.h" -exec rm -f {} \;
-
-find deps/npm -name "*.c" -exec rm -f {} \;
-find deps/npm -name "*.h" -exec rm -f {} \;
-
-find deps/zlib -name "*.c" -exec rm -f {} \;
-find deps/zlib -name "*.h" -exec rm -f {} \;
-
-find deps/v8 -name "*.c" -exec rm -f {} \;
-find deps/v8 -name "*.h" -exec rm -f {} \;
-
-find deps/http_parser -name "*.c" -exec rm -f {} \;
-find deps/http_parser -name "*.h" -exec rm -f {} \;
-
-find deps/uv -name "*.c" -exec rm -f {} \;
-find deps/uv -name "*.h" -exec rm -f {} \;
+rm -rf deps
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -193,6 +177,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 * Wed May 29 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.7-1
 - new upstream release 0.10.7
 - strip openssl from the tarball; it contains prohibited code (RHBZ#967736)
+- patch Makefile so we can just remove all bundled deps completely
 
 * Wed May 15 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.6-1
 - new upstream release 0.10.6
