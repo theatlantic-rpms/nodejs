@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.7
+Version: 0.10.8
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -174,6 +174,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Wed May 29 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.8-1
+- new upstream release 0.10.8
+
 * Wed May 29 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.7-1
 - new upstream release 0.10.7
 - strip openssl from the tarball; it contains prohibited code (RHBZ#967736)
