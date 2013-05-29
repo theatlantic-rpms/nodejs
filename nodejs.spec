@@ -9,7 +9,12 @@ URL: http://nodejs.org/
 # Exclusive archs must match v8
 ExclusiveArch: %{ix86} x86_64 %{arm}
 
-Source0: http://nodejs.org/dist/v%{version}/node-v%{version}.tar.gz
+# nodejs bundles openssl, but we use the system version in Fedora
+# because openssl contains prohibited code, we remove openssl completely from
+# the tarball, using the script in Source100
+Source0: node-v%{version}-stripped.tar.gz
+Source100: %{name}-tarball.sh
+
 Source1: macros.nodejs
 Source2: nodejs.attr
 Source3: nodejs.prov
@@ -93,9 +98,6 @@ find deps/v8 -name "*.h" -exec rm -f {} \;
 
 find deps/http_parser -name "*.c" -exec rm -f {} \;
 find deps/http_parser -name "*.h" -exec rm -f {} \;
-
-find deps/openssl -name "*.c" -exec rm -f {} \;
-find deps/openssl -name "*.h" -exec rm -f {} \;
 
 find deps/uv -name "*.c" -exec rm -f {} \;
 find deps/uv -name "*.h" -exec rm -f {} \;
@@ -190,6 +192,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %changelog
 * Wed May 29 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.7-1
 - new upstream release 0.10.7
+- strip openssl from the tarball; it contains prohibited code (RHBZ#967736)
 
 * Wed May 15 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.6-1
 - new upstream release 0.10.6
