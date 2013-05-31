@@ -180,9 +180,11 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 
 * Wed May 29 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.8-1
 - new upstream release 0.10.8
+  http://blog.nodejs.org/2013/05/24/node-v0-10-8-stable/
 
 * Wed May 29 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.7-1
 - new upstream release 0.10.7
+  http://blog.nodejs.org/2013/05/17/node-v0-10-7-stable/
 - strip openssl from the tarball; it contains prohibited code (RHBZ#967736)
 - patch Makefile so we can just remove all bundled deps completely
 
