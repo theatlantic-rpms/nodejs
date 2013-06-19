@@ -77,6 +77,7 @@ Development headers for the Node.js JavaScript runtime.
 %package docs
 Summary: Node.js API documentation
 Group: Documentation
+BuildArch: noarch
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
@@ -192,6 +193,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 - new upstream release 0.10.12
   http://blog.nodejs.org/2013/06/18/node-v0-10-12-stable/
 - split off a -packaging subpackage with RPM macros, etc.
+- build -docs as noarch
 
 * Fri May 31 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.9-1
 - new upstream release 0.10.9
