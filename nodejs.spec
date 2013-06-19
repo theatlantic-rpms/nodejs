@@ -69,6 +69,7 @@ Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name} == %{version}-%{release}
 Requires: libuv-devel http-parser-devel openssl-devel c-ares-devel zlib-devel
+Requires: nodejs-packaging
 
 %description devel
 Development headers for the Node.js JavaScript runtime.
@@ -79,6 +80,17 @@ Group: Documentation
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
+
+%package packaging
+Summary: RPM macros and utilities for Node.js packaging
+Group: Development/Tools
+BuildArch: noarch
+Requires: %{name} = %{version}-%{release}
+
+%description packaging
+This package contains RPM macros and other utilities useful for packaging
+Node.js modules and applications in RPM-based distributions.
+
 
 %prep
 %setup -q -n node-v%{version}
@@ -166,17 +178,20 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_bindir}/node_g
 %{_includedir}/node
 %{_datadir}/node
-%{_sysconfdir}/rpm/macros.nodejs
-%{_rpmconfigdir}/fileattrs/nodejs*.attr
-%{_rpmconfigdir}/nodejs*
 
 %files docs
 %{_defaultdocdir}/%{name}-docs-%{version}
+
+%files packaging
+%{_sysconfdir}/rpm/macros.nodejs
+%{_rpmconfigdir}/fileattrs/nodejs*.attr
+%{_rpmconfigdir}/nodejs*
 
 %changelog
 * Wed Jun 19 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.12-1
 - new upstream release 0.10.12
   http://blog.nodejs.org/2013/06/18/node-v0-10-12-stable/
+- split off a -packaging subpackage with RPM macros, etc.
 
 * Fri May 31 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.9-1
 - new upstream release 0.10.9
