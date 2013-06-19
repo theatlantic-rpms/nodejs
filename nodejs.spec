@@ -22,6 +22,7 @@ Source4: nodejs.req
 Source5: nodejs-symlink-deps
 Source6: nodejs-fixdep
 Source7: nodejs_native.attr
+Source8: multiver_modules
 
 # Disable running gyp on bundled deps we don't use
 Patch1: nodejs-disable-gyp-deps.patch
@@ -142,7 +143,7 @@ install -pm0755 %{SOURCE4} %{buildroot}%{_rpmconfigdir}/nodejs.req
 install -pm0755 %{SOURCE5} %{buildroot}%{_rpmconfigdir}/nodejs-symlink-deps
 install -pm0755 %{SOURCE6} %{buildroot}%{_rpmconfigdir}/nodejs-fixdep
 install -Dpm0644 %{SOURCE7} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs_native.attr
-
+install -Dpm0644 %{SOURCE8} %{buildroot}%{_datadir}/node/multiver_modules
 
 # ensure Requires are added to every native module that match the Provides from
 # the nodejs build in the buildroot
@@ -174,11 +175,12 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_bindir}/node
 %{_mandir}/man1/node.*
 %dir %{_prefix}/lib/node_modules
+%dir %{_datadir}/node
 
 %files devel
 %{_bindir}/node_g
 %{_includedir}/node
-%{_datadir}/node
+%{_datadir}/node/common.gypi
 
 %files docs
 %{_defaultdocdir}/%{name}-docs-%{version}
@@ -187,6 +189,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_sysconfdir}/rpm/macros.nodejs
 %{_rpmconfigdir}/fileattrs/nodejs*.attr
 %{_rpmconfigdir}/nodejs*
+%{_datadir}/node/multiver_modules
 
 %changelog
 * Wed Jun 19 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.12-1
@@ -194,6 +197,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
   http://blog.nodejs.org/2013/06/18/node-v0-10-12-stable/
 - split off a -packaging subpackage with RPM macros, etc.
 - build -docs as noarch
+- copy mutiple version logic from nodejs-packaging SRPM for now
 
 * Fri May 31 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.9-1
 - new upstream release 0.10.9
