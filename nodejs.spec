@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.12
+Version: 0.10.13
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -192,6 +192,10 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_datadir}/node/multiver_modules
 
 %changelog
+* Wed Jul 10 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.13-1
+- new upstream release 0.10.13
+  http://blog.nodejs.org/2013/07/09/node-v0-10-13-stable/
+
 * Wed Jun 19 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.12-1
 - new upstream release 0.10.12
   http://blog.nodejs.org/2013/06/18/node-v0-10-12-stable/
