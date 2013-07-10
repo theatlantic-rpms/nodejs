@@ -15,14 +15,10 @@ ExclusiveArch: %{ix86} x86_64 %{arm}
 Source0: node-v%{version}-stripped.tar.gz
 Source100: %{name}-tarball.sh
 
-Source1: macros.nodejs
-Source2: nodejs.attr
-Source3: nodejs.prov
-Source4: nodejs.req
-Source5: nodejs-symlink-deps
-Source6: nodejs-fixdep
+# The native module Requires generator remains in the nodejs SRPM, so it knows
+# the nodejs and v8 versions.  The remainder has migrated to the
+# nodejs-packaging SRPM.
 Source7: nodejs_native.attr
-Source8: multiver_modules
 
 # Disable running gyp on bundled deps we don't use
 Patch1: nodejs-disable-gyp-deps.patch
@@ -83,16 +79,6 @@ BuildArch: noarch
 %description docs
 The API documentation for the Node.js JavaScript runtime.
 
-%package packaging
-Summary: RPM macros and utilities for Node.js packaging
-Group: Development/Tools
-BuildArch: noarch
-Requires: %{name} = %{version}-%{release}
-
-%description packaging
-This package contains RPM macros and other utilities useful for packaging
-Node.js modules and applications in RPM-based distributions.
-
 
 %prep
 %setup -q -n node-v%{version}
@@ -135,18 +121,9 @@ install -Dpm0755 out/Debug/node %{buildroot}/%{_bindir}/node_g
 # own the sitelib directory
 mkdir -p %{buildroot}%{_prefix}/lib/node_modules
 
-# install rpm magic
-install -Dpm0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/rpm/macros.nodejs
-install -Dpm0644 %{SOURCE2} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs.attr
-install -pm0755 %{SOURCE3} %{buildroot}%{_rpmconfigdir}/nodejs.prov
-install -pm0755 %{SOURCE4} %{buildroot}%{_rpmconfigdir}/nodejs.req
-install -pm0755 %{SOURCE5} %{buildroot}%{_rpmconfigdir}/nodejs-symlink-deps
-install -pm0755 %{SOURCE6} %{buildroot}%{_rpmconfigdir}/nodejs-fixdep
-install -Dpm0644 %{SOURCE7} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs_native.attr
-install -Dpm0644 %{SOURCE8} %{buildroot}%{_datadir}/node/multiver_modules
-
 # ensure Requires are added to every native module that match the Provides from
 # the nodejs build in the buildroot
+install -Dpm0644 %{SOURCE7} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs_native.attr
 cat << EOF > %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 #!/bin/sh
 echo 'nodejs(abi) = %nodejs_abi'
@@ -176,6 +153,8 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_mandir}/man1/node.*
 %dir %{_prefix}/lib/node_modules
 %dir %{_datadir}/node
+%{_rpmconfigdir}/fileattrs/nodejs_native.attr
+%{_rpmconfigdir}/nodejs_native.req
 
 %files devel
 %{_bindir}/node_g
@@ -185,16 +164,11 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %files docs
 %{_defaultdocdir}/%{name}-docs-%{version}
 
-%files packaging
-%{_sysconfdir}/rpm/macros.nodejs
-%{_rpmconfigdir}/fileattrs/nodejs*.attr
-%{_rpmconfigdir}/nodejs*
-%{_datadir}/node/multiver_modules
-
 %changelog
 * Wed Jul 10 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.13-1
 - new upstream release 0.10.13
   http://blog.nodejs.org/2013/07/09/node-v0-10-13-stable/
+- remove RPM macros, etc. now that they've migrated to nodejs-packaging
 
 * Wed Jun 19 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.12-1
 - new upstream release 0.10.12
