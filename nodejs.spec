@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.14
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -132,10 +132,10 @@ EOF
 chmod 0755 %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 
 #install documentation
-mkdir -p %{buildroot}%{_defaultdocdir}/%{name}-docs-%{version}/html
-cp -pr doc/* %{buildroot}%{_defaultdocdir}/%{name}-docs-%{version}/html
-rm -f %{_defaultdocdir}/%{name}-docs-%{version}/html/nodejs.1
-cp -p LICENSE %{buildroot}%{_defaultdocdir}/%{name}-docs-%{version}/
+mkdir -p %{buildroot}%{_pkgdocdir}/html
+cp -pr doc/* %{buildroot}%{_pkgdocdir}/html
+rm -f %{buildroot}%{_pkgdocdir}/html/nodejs.1
+cp -p LICENSE %{buildroot}%{_pkgdocdir}/html
 
 #install development headers
 #FIXME: we probably don't really need *.h but node-gyp downloads the whole
@@ -162,9 +162,16 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_datadir}/node/common.gypi
 
 %files docs
-%{_defaultdocdir}/%{name}-docs-%{version}
+%dir %{_pkgdocdir}
+%{_pkgdocdir}/html
+%exclude %{_pkgdocdir}/(ChangeLog|LICENSE|README.md|AUTHORS)
 
 %changelog
+* Mon Aug 05 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-2
+- use unversioned docdir for -docs subpackage
+  https://fedoraproject.org/wiki/Changes/UnversionedDocdirs
+- use main package's docdir instead of a seperate -docs directory
+
 * Thu Jul 25 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-1
 - new upstream release 0.10.14
   http://blog.nodejs.org/2013/07/25/node-v0-10-14-stable/
