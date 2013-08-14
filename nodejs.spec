@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.14
-Release: 1%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -37,8 +37,8 @@ BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.1
 
-Requires: v8%{?isa} >= %{v8_ge}
-Requires: v8%{?isa} < %{v8_lt}
+Requires: v8%{?_isa} >= %{v8_ge}
+Requires: v8%{?_isa} < %{v8_lt}
 
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
@@ -165,6 +165,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Wed Aug 14 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-3
+- fix typo in _isa macro in v8 Requires
+
 * Thu Jul 25 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-1
 - new upstream release 0.10.14
   http://blog.nodejs.org/2013/07/25/node-v0-10-14-stable/
