@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.14
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -37,8 +37,8 @@ BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.1
 
-Requires: v8%{?isa} >= %{v8_ge}
-Requires: v8%{?isa} < %{v8_lt}
+Requires: v8%{?_isa} >= %{v8_ge}
+Requires: v8%{?_isa} < %{v8_lt}
 
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
@@ -167,6 +167,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %exclude %{_pkgdocdir}/(ChangeLog|LICENSE|README.md|AUTHORS)
 
 %changelog
+* Wed Aug 14 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-3
+- fix typo in _isa macro in v8 Requires
+
 * Mon Aug 05 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-2
 - use unversioned docdir for -docs subpackage
   https://fedoraproject.org/wiki/Changes/UnversionedDocdirs
