@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 0.10.14
-Release: 3%{?dist}
+Version: 0.10.16
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -64,8 +64,9 @@ real-time applications that run across distributed devices.
 %package devel
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
-Requires: %{name} == %{version}-%{release}
-Requires: libuv-devel http-parser-devel openssl-devel c-ares-devel zlib-devel
+Requires: %{name}%{?_isa} == %{version}-%{release}
+Requires: libuv-devel%{?_isa} http-parser-devel%{?_isa} v8-devel%{?_isa}
+Requires: openssl-devel%{?_isa} c-ares-devel%{?_isa} zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
 %description devel
@@ -167,6 +168,12 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %exclude %{_pkgdocdir}/(ChangeLog|LICENSE|README.md|AUTHORS)
 
 %changelog
+* Sat Aug 17 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.16-1
+- new upstream release 0.10.16
+  http://blog.nodejs.org/2013/08/16/node-v0-10-16-stable/
+- add v8-devel to -devel Requires
+- restrict -devel Requires to the same architecture
+
 * Wed Aug 14 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.14-3
 - fix typo in _isa macro in v8 Requires
 
