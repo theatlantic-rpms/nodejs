@@ -137,6 +137,7 @@ mkdir -p %{buildroot}%{_pkgdocdir}/html
 cp -pr doc/* %{buildroot}%{_pkgdocdir}/html
 rm -f %{buildroot}%{_pkgdocdir}/html/nodejs.1
 cp -p LICENSE %{buildroot}%{_pkgdocdir}/html
+cp -p ChangeLog LICENSE README.md AUTHORS %{buildroot}%{_pkgdocdir}
 
 #install development headers
 #FIXME: we probably don't really need *.h but node-gyp downloads the whole
@@ -149,13 +150,17 @@ mkdir -p %{buildroot}%{_datadir}/node
 cp -p common.gypi %{buildroot}%{_datadir}/node
 
 %files
-%doc ChangeLog LICENSE README.md AUTHORS
 %{_bindir}/node
 %{_mandir}/man1/node.*
 %dir %{_prefix}/lib/node_modules
 %dir %{_datadir}/node
 %{_rpmconfigdir}/fileattrs/nodejs_native.attr
 %{_rpmconfigdir}/nodejs_native.req
+%dir %{_pkgdocdir}
+%{_pkgdocdir}/ChangeLog
+%{_pkgdocdir}/LICENSE
+%{_pkgdocdir}/README.md
+%{_pkgdocdir}/AUTHORS
 
 %files devel
 %{_bindir}/node_g
@@ -165,12 +170,12 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %files docs
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/html
-%exclude %{_pkgdocdir}/(ChangeLog|LICENSE|README.md|AUTHORS)
 
 %changelog
 * Tue Aug 27 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.17-1
 - new upstream release 0.10.17
   http://blog.nodejs.org/2013/08/21/node-v0-10-17-stable/
+- fix duplicated/conflicting documentation files (RHBZ#1001253)
 
 * Sat Aug 17 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.16-1
 - new upstream release 0.10.16
