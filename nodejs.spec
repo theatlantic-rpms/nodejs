@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.19
+Version: 0.10.20
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -172,6 +172,10 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Oct 01 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.20-1
+- new upstream release 0.10.20
+  http://blog.nodejs.org/2013/09/30/node-v0-10-20-stable/
+
 * Wed Sep 25 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.19-1
 - new upstream release 0.10.19
   http://blog.nodejs.org/2013/09/24/node-v0-10-19-stable/
