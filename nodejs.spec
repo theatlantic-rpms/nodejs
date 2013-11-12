@@ -83,7 +83,7 @@ The API documentation for the Node.js JavaScript runtime.
 
 %prep
 %setup -q -n node-v%{version}
-%patch1 -p0
+%patch1 -p1
 
 rm -rf deps
 
