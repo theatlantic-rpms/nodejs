@@ -1,6 +1,18 @@
---- Makefile~	2013-05-17 13:59:10.000000000 -0700
-+++ Makefile	2013-05-28 20:09:57.199250068 -0700
-@@ -43,7 +43,7 @@
+From 4464455834276c845a63fede515cb62655afb2da Mon Sep 17 00:00:00 2001
+From: "T.C. Hollingsworth" <tchollingsworth@gmail.com>
+Date: Tue, 12 Nov 2013 14:51:03 -0700
+Subject: [PATCH] disable running gyp files for bundled deps
+
+these aren't used in Fedora
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 8177017..81d150f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -43,7 +43,7 @@ node_g: config.gypi out/Makefile
  	ln -fs out/Debug/node $@
  endif
  
@@ -8,4 +20,7 @@
 +out/Makefile: common.gypi node.gyp config.gypi
  ifeq ($(USE_NINJA),1)
  	touch out/Makefile
- 	$(PYTHON) tools/gyp_node -f ninja
+ 	$(PYTHON) tools/gyp_node.py -f ninja
+-- 
+1.8.4.2
+
