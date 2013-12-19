@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.23
+Version: 0.10.24
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -139,12 +139,6 @@ rm -f %{buildroot}%{_pkgdocdir}/html/nodejs.1
 cp -p LICENSE %{buildroot}%{_pkgdocdir}/html
 cp -p ChangeLog LICENSE README.md AUTHORS %{buildroot}%{_pkgdocdir}
 
-#install development headers
-#FIXME: we probably don't really need *.h but node-gyp downloads the whole
-#freaking source tree so I can't be sure ATM
-mkdir -p %{buildroot}%{_includedir}/node
-cp -p src/*.h %{buildroot}%{_includedir}/node
-
 #node-gyp needs common.gypi too
 mkdir -p %{buildroot}%{_datadir}/node
 cp -p common.gypi %{buildroot}%{_datadir}/node
@@ -172,6 +166,11 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Thu Dec 19 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.24-1
+- new upstream release 0.10.24
+  http://blog.nodejs.org/2013/12/19/node-v0-10-24-stable/
+- upstream install script installs the headers now
+
 * Thu Dec 12 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.23-1
 - new upstream release 0.10.23
   http://blog.nodejs.org/2013/12/11/node-v0-10-23-stable/
