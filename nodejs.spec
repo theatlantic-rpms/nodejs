@@ -138,12 +138,6 @@ cp -pr doc/* %{buildroot}%{_defaultdocdir}/%{name}-docs-%{version}/html
 rm -f %{_defaultdocdir}/%{name}-docs-%{version}/html/nodejs.1
 cp -p LICENSE %{buildroot}%{_defaultdocdir}/%{name}-docs-%{version}/
 
-#install development headers
-#FIXME: we probably don't really need *.h but node-gyp downloads the whole
-#freaking source tree so I can't be sure ATM
-mkdir -p %{buildroot}%{_includedir}/node
-cp -p src/*.h %{buildroot}%{_includedir}/node
-
 #node-gyp needs common.gypi too
 mkdir -p %{buildroot}%{_datadir}/node
 cp -p common.gypi %{buildroot}%{_datadir}/node
@@ -169,6 +163,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 * Thu Dec 19 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.24-1
 - new upstream release 0.10.24
   http://blog.nodejs.org/2013/12/19/node-v0-10-24-stable/
+- upstream install script installs the headers now
 
 * Thu Dec 12 2013 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.23-1
 - new upstream release 0.10.23
