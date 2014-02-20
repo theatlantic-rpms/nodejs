@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 0.10.25
-Release: 2%{?dist}
+Version: 0.10.26
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -166,6 +166,10 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Thu Feb 20 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.26-1
+- new upstream release 0.10.25
+  http://blog.nodejs.org/2014/02/18/node-v0-10-26-stable/
+
 * Fri Feb 14 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.25-2
 - rebuild for icu-53 (via v8)
 
