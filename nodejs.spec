@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.28
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -23,6 +23,11 @@ Source7: nodejs_native.attr
 # Disable running gyp on bundled deps we don't use
 Patch1: nodejs-disable-gyp-deps.patch
 
+# use system certificates instead of the bundled ones
+# modified version of Debian patch:
+# http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
+Patch2: nodejs-use-system-certs.patch
+
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME,
 # so we need to be more explicit until spot fixes that
 %global v8_ge 1:3.14.5.7
@@ -39,6 +44,9 @@ BuildRequires: openssl-devel >= 1:1.0.1
 
 Requires: v8%{?_isa} >= %{v8_ge}
 Requires: v8%{?_isa} < %{v8_lt}
+
+# we need the system certificate store when Patch2 is applied
+Requires: ca-certificates
 
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
@@ -83,9 +91,14 @@ The API documentation for the Node.js JavaScript runtime.
 
 %prep
 %setup -q -n node-v%{version}
-%patch1 -p1
 
+# remove bundled dependencies
+%patch1 -p1
 rm -rf deps
+
+# remove bundled CA certificates
+%patch2 -p1
+rm -f src/node_root_certs.h
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -166,6 +179,12 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Sat May 03 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.28-2
+- use the system certificate store instead of the bundled copy
+  both are based on the Mozilla CA list, so the only effect this should have is
+  making additional certificates added by the system administrator available to
+  node
+
 * Sat May 03 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.28-1
 - new upstream release 0.10.28
   There is no dfference between 0.10.27 and 0.10.28 for Fedora, as the only
