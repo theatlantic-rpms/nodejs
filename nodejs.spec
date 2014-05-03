@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.26
+Version: 0.10.28
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -160,6 +160,14 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_defaultdocdir}/%{name}-docs-%{version}
 
 %changelog
+* Sat May 03 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.28-1
+- new upstream release 0.10.28
+  There is no dfference between 0.10.27 and 0.10.28 for Fedora, as the only
+  thing updated was npm, which is shipped seperately.  The latest was only
+  packaged to avoid confusion.  Please see the v0.10.27 changelog for relevant
+  changes in this update:
+  http://blog.nodejs.org/2014/05/01/node-v0-10-27-stable/
+
 * Thu Feb 20 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.26-1
 - new upstream release 0.10.25
   http://blog.nodejs.org/2014/02/18/node-v0-10-26-stable/
