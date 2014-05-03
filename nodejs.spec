@@ -169,7 +169,7 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
   http://blog.nodejs.org/2014/05/01/node-v0-10-27-stable/
 
 * Thu Feb 20 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.26-1
-- new upstream release 0.10.25
+- new upstream release 0.10.26
   http://blog.nodejs.org/2014/02/18/node-v0-10-26-stable/
 
 * Mon Jan 27 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.25-1
