@@ -1,5 +1,5 @@
 Name: nodejs
-Version: 0.10.28
+Version: 0.10.29
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -22,6 +22,13 @@ Source7: nodejs_native.attr
 
 # Disable running gyp on bundled deps we don't use
 Patch1: nodejs-disable-gyp-deps.patch
+
+# The invalid UTF8 fix has been reverted since this breaks v8 API, which cannot
+# be done in a stable distribution release.  This build of nodejs will behave as
+# if NODE_INVALID_UTF8 was set.  For more information on the implications, see:
+# http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
+Patch3: nodejs-revert-utf8-v8.patch
+Patch4: nodejs-revert-utf8-node.patch
 
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME,
 # so we need to be more explicit until spot fixes that
@@ -84,6 +91,8 @@ The API documentation for the Node.js JavaScript runtime.
 %prep
 %setup -q -n node-v%{version}
 %patch1 -p1
+%patch3 -p1
+%patch4 -p1
 
 rm -rf deps
 
@@ -166,6 +175,14 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Thu Jun 19 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.29-1
+- new upstream release 0.10.29
+  http://blog.nodejs.org/2014/06/16/node-v0-10-29-stable/
+- The invalid UTF8 fix has been reverted since this breaks v8 API, which cannot
+  be done in a stable distribution release.  This build of nodejs will behave as
+  if NODE_INVALID_UTF8 was set.  For more information on the implications, see:
+  http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
+
 * Sat May 03 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.28-1
 - new upstream release 0.10.28
   There is no dfference between 0.10.27 and 0.10.28 for Fedora, as the only
