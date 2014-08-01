@@ -767,7 +767,7 @@ index 0dbf7f4..0000000
 -      return str_;
 -    };
 -
--    size_t length() {
+-    size_t length() const {
 -      return length_;
 -    };
 -
