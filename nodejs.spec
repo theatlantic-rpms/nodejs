@@ -23,13 +23,6 @@ Source7: nodejs_native.attr
 # Disable running gyp on bundled deps we don't use
 Patch1: nodejs-disable-gyp-deps.patch
 
-# The invalid UTF8 fix has been reverted since this breaks v8 API, which cannot
-# be done in a stable distribution release.  This build of nodejs will behave as
-# if NODE_INVALID_UTF8 was set.  For more information on the implications, see:
-# http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
-Patch3: nodejs-revert-utf8-v8.patch
-Patch4: nodejs-revert-utf8-node.patch
-
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME,
 # so we need to be more explicit until spot fixes that
 %global v8_ge 1:3.14.5.7
@@ -91,8 +84,6 @@ The API documentation for the Node.js JavaScript runtime.
 %prep
 %setup -q -n node-v%{version}
 %patch1 -p1
-%patch3 -p1
-%patch4 -p1
 
 rm -rf deps
 
@@ -178,6 +169,8 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 * Fri Aug 01 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.30-1
 - new upstream release 0.10.30
   http://blog.nodejs.org/2014/07/31/node-v0-10-30-stable/
+- allow UTF8 change to happen:
+  http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
 
 * Thu Jun 19 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.29-1
 - new upstream release 0.10.29
