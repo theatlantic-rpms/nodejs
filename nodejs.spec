@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 0.10.30
-Release: 2%{?dist}
+Version: 0.10.32
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -190,6 +190,11 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Thu Sep 18 2014 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.32-1
+- new upstream release 0.10.32
+  http://blog.nodejs.org/2014/08/19/node-v0-10-31-stable/
+  http://blog.nodejs.org/2014/09/16/node-v0-10-32-stable/
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.30-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
