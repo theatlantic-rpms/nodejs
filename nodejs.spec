@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.36
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -43,7 +43,7 @@ Patch4: nodejs-revert-utf8-node.patch
 
 BuildRequires: v8-devel >= %{v8_ge}
 BuildRequires: http-parser-devel >= 2.0
-BuildRequires: libuv-devel
+BuildRequires: compat-libuv010-devel
 BuildRequires: c-ares-devel
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
@@ -132,6 +132,8 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
            --shared-zlib \
            --shared-cares \
            --shared-libuv \
+           --shared-libuv-libname=:libuv.so.0.10 \
+           --shared-libuv-includes=%{_includedir}/compat-libuv010 \
            --shared-http-parser \
            --without-npm \
            --without-dtrace
@@ -200,6 +202,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Thu Feb 19 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-2
+- build against compat-libuv010
+
 * Thu Feb 19 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-1
 - new upstream release 0.10.36
   http://blog.nodejs.org/2015/01/26/node-v0-10-36-stable/
