@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.36
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -90,7 +90,7 @@ real-time applications that run across distributed devices.
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} == %{version}-%{release}
-Requires: libuv-devel%{?_isa} http-parser-devel%{?_isa} v8-devel%{?_isa}
+Requires: compat-libuv010-devel%{?_isa} http-parser-devel%{?_isa} v8-devel%{?_isa}
 Requires: openssl-devel%{?_isa} c-ares-devel%{?_isa} zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
@@ -202,6 +202,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Apr 29 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-4
+- fix incorrect Requires on libuv (RHBZ#1215719)
+
 * Tue Feb 24 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-3
 - bump v8 requires (RHBZ#1195457)
 
