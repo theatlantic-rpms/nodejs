@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 0.10.36
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -202,6 +202,9 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.36-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Wed Apr 29 2015 T.C. Hollingsworth <tchollingsworth@gmail.com> - 0.10.36-4
 - fix incorrect Requires on libuv (RHBZ#1215719)
 
