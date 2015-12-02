@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 4.2.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -43,7 +43,7 @@ Requires: ca-certificates
 
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
-%global nodejs_abi 0.10
+%global nodejs_abi 4.2
 Provides: nodejs(abi) = %{nodejs_abi}
 Provides: nodejs(v8-abi) = %{v8_abi}
 
@@ -128,8 +128,6 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --shared-libuv-libname=:libuv.so.0.10 \
-           --shared-libuv-includes=%{_includedir}/compat-libuv010 \
            --shared-http-parser \
            --without-npm \
            --without-dtrace
@@ -212,6 +210,10 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Dec 02 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-3
+- Fix nodejs_abi version
+- Also ensure that we are building against the correct libuv
+
 * Wed Dec 02 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-2
 - Disable debug build for ARMv7 since it fails to build
 
