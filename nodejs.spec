@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 0.10.36
-Release: 5%{?dist}
+Version: 4.2.2
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -28,29 +28,15 @@ Patch1: nodejs-disable-gyp-deps.patch
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch2: nodejs-use-system-certs.patch
 
-# The invalid UTF8 fix has been reverted since this breaks v8 API, which cannot
-# be done in a stable distribution release.  This build of nodejs will behave as
-# if NODE_INVALID_UTF8 was set.  For more information on the implications, see:
-# http://blog.nodejs.org/2014/06/16/openssl-and-breaking-utf-8-change/
-Patch3: nodejs-revert-utf8-v8.patch
-Patch4: nodejs-revert-utf8-node.patch
+# V8 presently breaks ABI at least every x.y release while never bumping SONAME
+%global v8_abi 4.6
 
-# V8 presently breaks ABI at least every x.y release while never bumping SONAME,
-# so we need to be more explicit until spot fixes that
-%global v8_ge 1:3.14.5.10-17
-%global v8_lt 1:3.15
-%global v8_abi 3.14
-
-BuildRequires: v8-devel >= %{v8_ge}
-BuildRequires: http-parser-devel >= 2.0
-BuildRequires: compat-libuv010-devel
-BuildRequires: c-ares-devel
+BuildRequires: python-devel
+BuildRequires: libuv-devel >= 1.7.5
+BuildRequires: http-parser-devel >= 2.6
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.1
-
-Requires: v8%{?_isa} >= %{v8_ge}
-Requires: v8%{?_isa} < %{v8_lt}
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -67,7 +53,7 @@ Provides: nodejs(engine) = %{version}
 # Node.js currently has a conflict with the 'node' package in Fedora
 # The ham-radio group has agreed to rename their binary for us, but
 # in the meantime, we're setting an explicit Conflicts: here
-Conflicts: node <= 0.3.2-11
+Conflicts: node <= 0.3.2-12
 
 # The punycode module was absorbed into the standard library in v0.6.
 # It still exists as a seperate package for the benefit of users of older
@@ -78,6 +64,18 @@ Conflicts: node <= 0.3.2-11
 Provides: nodejs-punycode = 1.3.1
 Provides: npm(punycode) = 1.3.1
 
+
+# Node.js has forked c-ares from upstream in an incompatible way, so we need
+# to carry the bundled version internally.
+# See https://github.com/nodejs/node/commit/766d063e0578c0f7758c3a965c971763f43fec85
+Provides: bundled(c-ares) = 1.10.1
+
+# Node.js is closely tied to the version of v8 that is used with it. It makes
+# sense to use the bundled version because upstream consistently breaks ABI
+# even in point releases. Node.js upstream has now removed the ability to build
+# against a shared system version entirely.
+# See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
+Provides: bundled(v8) = 4.6.85
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -90,8 +88,8 @@ real-time applications that run across distributed devices.
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} == %{version}-%{release}
-Requires: compat-libuv010-devel%{?_isa} http-parser-devel%{?_isa} v8-devel%{?_isa}
-Requires: openssl-devel%{?_isa} c-ares-devel%{?_isa} zlib-devel%{?_isa}
+Requires: libuv-devel%{?_isa} http-parser-devel%{?_isa}
+Requires: openssl-devel%{?_isa} zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
 %description devel
@@ -109,16 +107,16 @@ The API documentation for the Node.js JavaScript runtime.
 %prep
 %setup -q -n node-v%{version}
 
-# remove bundled dependencies
+# remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps
+rm -rf deps/http_parser \
+       deps/npm \
+       deps/uv \
+       deps/zlib
 
 # remove bundled CA certificates
 %patch2 -p1
 rm -f src/node_root_certs.h
-
-%patch3 -p1
-%patch4 -p1
 
 
 %build
@@ -127,10 +125,8 @@ export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
 export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
 
 ./configure --prefix=%{_prefix} \
-           --shared-v8 \
            --shared-openssl \
            --shared-zlib \
-           --shared-cares \
            --shared-libuv \
            --shared-libuv-libname=:libuv.so.0.10 \
            --shared-libuv-includes=%{_includedir}/compat-libuv010 \
@@ -144,7 +140,7 @@ make BUILDTYPE=Debug %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 
-./tools/install.py install %{buildroot}
+./tools/install.py install %{buildroot} %{_prefix}
 
 # and remove dtrace file again
 rm -rf %{buildroot}/%{_prefix}/lib/dtrace
@@ -172,36 +168,43 @@ chmod 0755 %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 mkdir -p %{buildroot}%{_pkgdocdir}/html
 cp -pr doc/* %{buildroot}%{_pkgdocdir}/html
 rm -f %{buildroot}%{_pkgdocdir}/html/nodejs.1
-cp -p LICENSE %{buildroot}%{_pkgdocdir}/html
-cp -p ChangeLog LICENSE README.md AUTHORS %{buildroot}%{_pkgdocdir}
 
 #node-gyp needs common.gypi too
 mkdir -p %{buildroot}%{_datadir}/node
 cp -p common.gypi %{buildroot}%{_datadir}/node
+
+# Install the GDB init tool into the documentation directory
+mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 
 %files
 %{_bindir}/node
 %{_mandir}/man1/node.*
 %dir %{_prefix}/lib/node_modules
 %dir %{_datadir}/node
+%dir %{_datadir}/systemtap
+%dir %{_datadir}/systemtap/tapset
+%{_datadir}/systemtap/tapset/node.stp
 %{_rpmconfigdir}/fileattrs/nodejs_native.attr
 %{_rpmconfigdir}/nodejs_native.req
 %dir %{_pkgdocdir}
-%{_pkgdocdir}/ChangeLog
-%{_pkgdocdir}/LICENSE
-%{_pkgdocdir}/README.md
-%{_pkgdocdir}/AUTHORS
-
+%license LICENSE
+%doc AUTHORS CHANGELOG.md COLLABORATOR_GUIDE.md GOVERNANCE.md README.md
+%doc ROADMAP.md WORKING_GROUPS.md
+ 
 %files devel
 %{_bindir}/node_g
 %{_includedir}/node
 %{_datadir}/node/common.gypi
+%{_pkgdocdir}/gdbinit
 
 %files docs
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Dec 01 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-0.1
+- Upgrade to Node.js 4.2.2 (LTS)
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.36-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
