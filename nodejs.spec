@@ -1,6 +1,6 @@
 Name: nodejs
 Version: 4.2.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -134,8 +134,14 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
            --without-npm \
            --without-dtrace
 
+%ifnarch %{arm}
 # Setting BUILDTYPE=Debug builds both release and debug binaries
 make BUILDTYPE=Debug %{?_smp_mflags}
+%else
+# ARM builds currently break on the Debug builds, so we'll just
+# build the standard runtime until that gets sorted out.
+make BUILDTYPE=Release %{?_smp_mflags}
+%endif
 
 %install
 rm -rf %{buildroot}
@@ -148,8 +154,10 @@ rm -rf %{buildroot}/%{_prefix}/lib/dtrace
 # Set the binary permissions properly
 chmod 0755 %{buildroot}/%{_bindir}/node
 
+%ifnarch %{arm}
 # Install the debug binary and set its permissions
 install -Dpm0755 out/Debug/node %{buildroot}/%{_bindir}/node_g
+%endif
 
 # own the sitelib directory
 mkdir -p %{buildroot}%{_prefix}/lib/node_modules
@@ -192,7 +200,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %doc ROADMAP.md WORKING_GROUPS.md
  
 %files devel
+%ifnarch %{arm}
 %{_bindir}/node_g
+%endif
 %{_includedir}/node
 %{_datadir}/node/common.gypi
 %{_pkgdocdir}/gdbinit
@@ -202,7 +212,10 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
-* Tue Dec 01 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-0.1
+* Wed Dec 02 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-2
+- Disable debug build for ARMv7 since it fails to build
+
+* Tue Dec 01 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-1
 - Upgrade to Node.js 4.2.2 (LTS)
 
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.36-5
