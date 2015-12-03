@@ -1,13 +1,12 @@
 Name: nodejs
 Version: 4.2.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
 URL: http://nodejs.org/
 
-# Exclusive archs must match v8
-ExclusiveArch: %{ix86} x86_64 %{arm}
+ExclusiveArch: %{nodejs_arches}
 
 # nodejs bundles openssl, but we use the system version in Fedora
 # because openssl contains prohibited code, we remove openssl completely from
@@ -210,6 +209,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Dec  2 2015 Peter Robinson <pbrobinson@fedoraproject.org> 4.2.2-4
+- Use nodejs_arches macro for arch definition (add aarch64 and power64 platforms)
+
 * Wed Dec 02 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.2-3
 - Fix nodejs_abi version
 - Also ensure that we are building against the correct libuv
