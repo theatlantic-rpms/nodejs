@@ -1,6 +1,6 @@
 Name: nodejs
-Version: 4.2.2
-Release: 4%{?dist}
+Version: 4.2.3
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -28,7 +28,7 @@ Patch1: nodejs-disable-gyp-deps.patch
 Patch2: nodejs-use-system-certs.patch
 
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
-%global v8_abi 4.6
+%global v8_abi 4.5
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1.7.5
@@ -74,7 +74,7 @@ Provides: bundled(c-ares) = 1.10.1
 # even in point releases. Node.js upstream has now removed the ability to build
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
-Provides: bundled(v8) = 4.6.85
+Provides: bundled(v8) = 4.5.103.35
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -209,6 +209,11 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Fri Dec 04 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.3-1
+- New upstream security release 4.2.3
+- https://github.com/nodejs/node/blob/v4.2.3/CHANGELOG.md
+- Fix incorrect v8 version
+
 * Wed Dec  2 2015 Peter Robinson <pbrobinson@fedoraproject.org> 4.2.2-4
 - Use nodejs_arches macro for arch definition (add aarch64 and power64 platforms)
 
