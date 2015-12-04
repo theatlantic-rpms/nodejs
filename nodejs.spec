@@ -1,6 +1,14 @@
+%global with_debug 1
+
+# ARM builds currently break on the Debug builds, so we'll just
+# build the standard runtime until that gets sorted out.
+%ifarch %{arm} aarch64 %{power64}
+%global with_debug 0
+%endif
+
 Name: nodejs
 Version: 4.2.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -131,12 +139,10 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
            --without-npm \
            --without-dtrace
 
-%ifnarch %{arm}
+%if %{?with_debug} == 1
 # Setting BUILDTYPE=Debug builds both release and debug binaries
 make BUILDTYPE=Debug %{?_smp_mflags}
 %else
-# ARM builds currently break on the Debug builds, so we'll just
-# build the standard runtime until that gets sorted out.
 make BUILDTYPE=Release %{?_smp_mflags}
 %endif
 
@@ -151,7 +157,7 @@ rm -rf %{buildroot}/%{_prefix}/lib/dtrace
 # Set the binary permissions properly
 chmod 0755 %{buildroot}/%{_bindir}/node
 
-%ifnarch %{arm}
+%if %{?with_debug} == 1
 # Install the debug binary and set its permissions
 install -Dpm0755 out/Debug/node %{buildroot}/%{_bindir}/node_g
 %endif
@@ -197,7 +203,7 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %doc ROADMAP.md WORKING_GROUPS.md
  
 %files devel
-%ifnarch %{arm}
+%if %{?with_debug} == 1
 %{_bindir}/node_g
 %endif
 %{_includedir}/node
@@ -209,6 +215,10 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Fri Dec 04 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.3-2
+- Add %%with_debug variable to spec file
+  The debug build is not supported on all architectures.
+
 * Fri Dec 04 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.3-1
 - New upstream security release 4.2.3
 - https://github.com/nodejs/node/blob/v4.2.3/CHANGELOG.md
