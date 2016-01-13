@@ -7,8 +7,8 @@
 %endif
 
 Name: nodejs
-Version: 4.2.3
-Release: 2%{?dist}
+Version: 4.2.4
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -215,6 +215,10 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Jan 13 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.2.4-1
+- New upstream bugfix release 4.2.4
+- https://github.com/nodejs/node/blob/v4.2.3/CHANGELOG.md
+
 * Fri Dec 04 2015 Stephen Gallagher <sgallagh@redhat.com> 4.2.3-2
 - Add %%with_debug variable to spec file
   The debug build is not supported on all architectures.

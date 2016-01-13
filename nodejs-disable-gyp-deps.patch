@@ -1,4 +1,4 @@
-From 34a6454fc02ae79362cc03f501bb08fb95495a1b Mon Sep 17 00:00:00 2001
+From e23b2803b886fb6d001ebcc70aa29713561f316f Mon Sep 17 00:00:00 2001
 From: Stephen Gallagher <sgallagh@redhat.com>
 Date: Tue, 1 Dec 2015 16:35:29 -0500
 Subject: [PATCH 1/2] disable running gyp files for bundled deps
@@ -25,5 +25,5 @@ index 02619fac98ddd7bd90648f6493ccf49fcf22c47b..981c3ce4daa8724547979d7646117182
  	if [ -f $@ ]; then
  		$(error Stale $@, please re-run ./configure)
 -- 
-2.5.0
+2.7.0
 
