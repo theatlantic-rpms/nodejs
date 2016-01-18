@@ -8,7 +8,7 @@
 
 Name: nodejs
 Version: 4.2.4
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -43,7 +43,7 @@ BuildRequires: libuv-devel >= 1.7.5
 BuildRequires: http-parser-devel >= 2.6
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
-BuildRequires: openssl-devel >= 1:1.0.1
+BuildRequires: openssl-devel >= 1:1.0.2
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -68,8 +68,8 @@ Conflicts: node <= 0.3.2-12
 # we don't need the seperate nodejs-punycode package, so we Provide it here so
 # dependent packages don't need to override the dependency generator.
 # See also: RHBZ#11511811
-Provides: nodejs-punycode = 1.3.1
-Provides: npm(punycode) = 1.3.1
+Provides: nodejs-punycode = 1.3.2
+Provides: npm(punycode) = 1.3.2
 
 
 # Node.js has forked c-ares from upstream in an incompatible way, so we need
@@ -215,6 +215,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Mon Jan 18 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.2.4-2
+- Fix Provides: for punycode
+
 * Wed Jan 13 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.2.4-1
 - New upstream bugfix release 4.2.4
 - https://github.com/nodejs/node/blob/v4.2.3/CHANGELOG.md
