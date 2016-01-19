@@ -8,7 +8,7 @@
 
 Name: nodejs
 Version: 4.2.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -40,6 +40,7 @@ Patch2: nodejs-use-system-certs.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1.7.5
+Requires: libuv >= 1.7.5
 BuildRequires: http-parser-devel >= 2.6
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
@@ -215,6 +216,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Jan 19 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.2.4-3
+- Force a dependency on the correct version of libuv
+
 * Mon Jan 18 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.2.4-2
 - Fix Provides: for punycode
 
