@@ -7,8 +7,8 @@
 %endif
 
 Name: nodejs
-Version: 4.2.4
-Release: 5%{?dist}
+Version: 4.2.6
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -217,6 +217,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Feb  9 2016 Tom Hughes <tom@compton.nu> - 4.2.6-1
+- Update to 4.2.6 upstream release
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 4.2.4-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
