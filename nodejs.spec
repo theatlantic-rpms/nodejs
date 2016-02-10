@@ -35,6 +35,13 @@
 %global http_parser_patch 1
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
+# punycode - from lib/punycode.js
+# Note: this was merged into the mainline since 0.6.x
+%global punycode_major 1
+%global punycode_minor 3
+%global punycode_patch 2
+%global punycode_version %{punycode_major}.%{punycode_minor}.%{punycode_patch}
+
 Name: nodejs
 Version: %{nodejs_version}
 Release: 3%{?dist}
@@ -93,8 +100,8 @@ Conflicts: node <= 0.3.2-12
 # we don't need the seperate nodejs-punycode package, so we Provide it here so
 # dependent packages don't need to override the dependency generator.
 # See also: RHBZ#11511811
-Provides: nodejs-punycode = 1.3.2
-Provides: npm(punycode) = 1.3.2
+Provides: nodejs-punycode = %{punycode_version}
+Provides: npm(punycode) = %{punycode_version}
 
 
 # Node.js has forked c-ares from upstream in an incompatible way, so we need
@@ -226,6 +233,8 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.ares.replace(/-DEV$/, ''), '%{c_ares_version}')"
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.http_parser, '%{http_parser_version}')"
 
+# Ensure we have punycode and that the version matches
+%{buildroot}/%{_bindir}/node -e "require(\"assert\").equal(require(\"punycode\").version, '%{punycode_version}')"
 
 %files
 %{_bindir}/node
@@ -256,8 +265,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 
 %changelog
 * Wed Feb 10 2016 Tom Hughes <tom@compton.nu> - 4.3.0-3
-- Verify that the built node reports the exepcted versions
+- Verify that the built node reports the expected versions
 - Drop unneeded dep on http-parser-devel
+- Add version check for punycode
 
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.3.0-2
 - Fix nodejs-abi to be 4.3
