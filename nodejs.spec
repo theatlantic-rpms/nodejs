@@ -11,6 +11,7 @@
 %global nodejs_minor 3
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
+%global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -20,20 +21,23 @@
 %global v8_patch 35
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
+%global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
 
 # c-ares - from deps/cares/include/ares_version.h
 %global c_ares_major 1
 %global c_ares_minor 10
 %global c_ares_patch 1
+%global c_ares_version %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
 
 # http-parser - from deps/http-parser/http_parser.h
 %global http_parser_major 2
 %global http_parser_minor 5
 %global http_parser_patch 1
+%global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 Name: nodejs
-Version: %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-Release: 2%{?dist}
+Version: %{nodejs_version}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -96,18 +100,18 @@ Provides: npm(punycode) = 1.3.2
 # Node.js has forked c-ares from upstream in an incompatible way, so we need
 # to carry the bundled version internally.
 # See https://github.com/nodejs/node/commit/766d063e0578c0f7758c3a965c971763f43fec85
-Provides: bundled(c-ares) = %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
+Provides: bundled(c-ares) = %{c_ares_version}
 
 # Node.js is closely tied to the version of v8 that is used with it. It makes
 # sense to use the bundled version because upstream consistently breaks ABI
 # even in point releases. Node.js upstream has now removed the ability to build
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
-Provides: bundled(v8) = %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
+Provides: bundled(v8) = %{v8_version}
 
 # Node.js and http-parser share an upstream. The http-parser upstream does not
 # do releases often and is almost always far behind the bundled version
-Provides: bundled(http-parser) = %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
+Provides: bundled(http-parser) = %{http_parser_version}
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -171,6 +175,7 @@ make BUILDTYPE=Debug %{?_smp_mflags}
 make BUILDTYPE=Release %{?_smp_mflags}
 %endif
 
+
 %install
 rm -rf %{buildroot}
 
@@ -212,6 +217,15 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 # Install the GDB init tool into the documentation directory
 mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 
+
+%check
+# Fail the build if the versions don't match
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.node, '%{nodejs_version}')"
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.v8, '%{v8_version}')"
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.ares.replace(/-DEV$/, ''), '%{c_ares_version}')"
+%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.http_parser, '%{http_parser_version}')"
+
+
 %files
 %{_bindir}/node
 %{_mandir}/man1/node.*
@@ -240,6 +254,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Feb 10 2016 Tom Hughes <tom@compton.nu> - 4.3.0-3
+- Verify that the built node reports the exepcted versions
+
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.3.0-2
 - Fix nodejs-abi to be 4.3
 - Clean up bundled versions in spec file
