@@ -7,7 +7,7 @@
 %endif
 
 Name: nodejs
-Version: 4.2.6
+Version: 4.3.0
 Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
@@ -41,8 +41,6 @@ Patch2: nodejs-use-system-certs.patch
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1.7.5
 Requires: libuv >= 1.7.5
-BuildRequires: http-parser-devel >= 2.6
-Requires: http-parser >= 2.6
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.2
@@ -86,6 +84,10 @@ Provides: bundled(c-ares) = 1.10.1
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
 Provides: bundled(v8) = 4.5.103.35
 
+# Node.js and http-parser share an upstream. The http-parser upstream does not
+# do releases often and is almost always far behind the bundled version
+Provides: bundled(http-parser) = 2.5.1
+
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
 for easily building fast, scalable network applications.
@@ -118,8 +120,7 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/http_parser \
-       deps/npm \
+rm -rf deps/npm \
        deps/uv \
        deps/zlib
 
@@ -130,14 +131,15 @@ rm -f src/node_root_certs.h
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
-export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
-export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64'
+# Node's v8 breaks with GCC 8 because of incorrect usage of methods on
+# NULL objects. We need to pass -fno-delete-null-pointer-checks
+export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
+export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
 
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --shared-http-parser \
            --without-npm \
            --without-dtrace
 
@@ -217,6 +219,12 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Feb 09 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.3.0-1
+- Update to 4.3.0 upstream LTS release
+- https://github.com/nodejs/node/blob/v4.3.0/CHANGELOG.md
+- Switch to the bundled http-parser
+- Build with -fno-delete-pointer-null-checks for GCC 6
+
 * Tue Feb  9 2016 Tom Hughes <tom@compton.nu> - 4.2.6-1
 - Update to 4.2.6 upstream release
 
