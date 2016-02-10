@@ -124,8 +124,9 @@ real-time applications that run across distributed devices.
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
 Requires: %{name}%{?_isa} == %{version}-%{release}
-Requires: libuv-devel%{?_isa} http-parser-devel%{?_isa}
-Requires: openssl-devel%{?_isa} zlib-devel%{?_isa}
+Requires: libuv-devel%{?_isa}
+Requires: openssl-devel%{?_isa}
+Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
 %description devel
@@ -256,6 +257,7 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %changelog
 * Wed Feb 10 2016 Tom Hughes <tom@compton.nu> - 4.3.0-3
 - Verify that the built node reports the exepcted versions
+- Drop unneeded dep on http-parser-devel
 
 * Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.3.0-2
 - Fix nodejs-abi to be 4.3
