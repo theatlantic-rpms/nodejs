@@ -6,9 +6,34 @@
 %global with_debug 0
 %endif
 
+# == Node.js Version ==
+%global nodejs_major 4
+%global nodejs_minor 3
+%global nodejs_patch 0
+%global nodejs_abi %{nodejs_major}.%{nodejs_minor}
+
+# == Bundled Dependency Versions ==
+# v8 - from deps/v8/include/v8-version.h
+%global v8_major 4
+%global v8_minor 5
+%global v8_build 103
+%global v8_patch 35
+# V8 presently breaks ABI at least every x.y release while never bumping SONAME
+%global v8_abi %{v8_major}.%{v8_minor}
+
+# c-ares - from deps/cares/include/ares_version.h
+%global c_ares_major 1
+%global c_ares_minor 10
+%global c_ares_patch 1
+
+# http-parser - from deps/http-parser/http_parser.h
+%global http_parser_major 2
+%global http_parser_minor 5
+%global http_parser_patch 1
+
 Name: nodejs
-Version: 4.3.0
-Release: 1%{?dist}
+Version: %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -35,9 +60,6 @@ Patch1: nodejs-disable-gyp-deps.patch
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch2: nodejs-use-system-certs.patch
 
-# V8 presently breaks ABI at least every x.y release while never bumping SONAME
-%global v8_abi 4.5
-
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1.7.5
 Requires: libuv >= 1.7.5
@@ -50,7 +72,6 @@ Requires: ca-certificates
 
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
-%global nodejs_abi 4.2
 Provides: nodejs(abi) = %{nodejs_abi}
 Provides: nodejs(v8-abi) = %{v8_abi}
 
@@ -75,18 +96,18 @@ Provides: npm(punycode) = 1.3.2
 # Node.js has forked c-ares from upstream in an incompatible way, so we need
 # to carry the bundled version internally.
 # See https://github.com/nodejs/node/commit/766d063e0578c0f7758c3a965c971763f43fec85
-Provides: bundled(c-ares) = 1.10.1
+Provides: bundled(c-ares) = %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
 
 # Node.js is closely tied to the version of v8 that is used with it. It makes
 # sense to use the bundled version because upstream consistently breaks ABI
 # even in point releases. Node.js upstream has now removed the ability to build
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
-Provides: bundled(v8) = 4.5.103.35
+Provides: bundled(v8) = %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
 
 # Node.js and http-parser share an upstream. The http-parser upstream does not
 # do releases often and is almost always far behind the bundled version
-Provides: bundled(http-parser) = 2.5.1
+Provides: bundled(http-parser) = %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -219,6 +240,10 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Feb 10 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.3.0-2
+- Fix nodejs-abi to be 4.3
+- Clean up bundled versions in spec file
+
 * Tue Feb 09 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.3.0-1
 - Update to 4.3.0 upstream LTS release
 - https://github.com/nodejs/node/blob/v4.3.0/CHANGELOG.md
