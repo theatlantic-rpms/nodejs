@@ -9,7 +9,7 @@
 # == Node.js Version ==
 %global nodejs_major 4
 %global nodejs_minor 3
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -32,7 +32,7 @@
 # http-parser - from deps/http-parser/http_parser.h
 %global http_parser_major 2
 %global http_parser_minor 5
-%global http_parser_patch 1
+%global http_parser_patch 2
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 # punycode - from lib/punycode.js
@@ -44,7 +44,7 @@
 
 Name: nodejs
 Version: %{nodejs_version}
-Release: 3%{?dist}
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -264,6 +264,9 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Tue Feb 23 2016 Tom Hughes <tom@compton.nu> - 4.3.1-1
+- Update to 4.3.1 upstream LTS release
+
 * Wed Feb 10 2016 Tom Hughes <tom@compton.nu> - 4.3.0-3
 - Verify that the built node reports the expected versions
 - Drop unneeded dep on http-parser-devel
