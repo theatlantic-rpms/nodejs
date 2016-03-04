@@ -7,8 +7,8 @@
 %endif
 
 # == Node.js Version ==
-%global nodejs_major 4
-%global nodejs_minor 3
+%global nodejs_major 5
+%global nodejs_minor 9
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -16,9 +16,9 @@
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 4
-%global v8_minor 5
-%global v8_build 103
-%global v8_patch 35
+%global v8_minor 6
+%global v8_build 85
+%global v8_patch 31
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -29,9 +29,9 @@
 %global c_ares_patch 1
 %global c_ares_version %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
 
-# http-parser - from deps/http-parser/http_parser.h
+# http-parser - from deps/http_parser/http_parser.h
 %global http_parser_major 2
-%global http_parser_minor 5
+%global http_parser_minor 6
 %global http_parser_patch 2
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
@@ -42,9 +42,20 @@
 %global punycode_patch 2
 %global punycode_version %{punycode_major}.%{punycode_minor}.%{punycode_patch}
 
+# npm - from deps/npm/package.json
+%global npm_major 3
+%global npm_minor 7
+%global npm_patch 3
+%global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
+
+# Filter out the NPM bundled dependencies so we aren't providing them
+%global __provides_exclude_from ^%{_prefix}/lib/node_modules/npm/.*$
+%global __requires_exclude_from ^%{_prefix}/lib/node_modules/npm/.*$
+
+
 Name: nodejs
 Version: %{nodejs_version}
-Release: 1%{?dist}
+Release: 0%{?dist}.20
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -72,8 +83,8 @@ Patch1: nodejs-disable-gyp-deps.patch
 Patch2: nodejs-use-system-certs.patch
 
 BuildRequires: python-devel
-BuildRequires: libuv-devel >= 1.7.5
-Requires: libuv >= 1.7.5
+BuildRequires: libuv-devel >= 1.8.0
+Requires: libuv >= 1.8.0
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.2
@@ -84,6 +95,7 @@ Requires: ca-certificates
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
 Provides: nodejs(abi) = %{nodejs_abi}
+Provides: nodejs(abi%{nodejs_major}) = %{nodejs_abi}
 Provides: nodejs(v8-abi) = %{v8_abi}
 
 #this corresponds to the "engine" requirement in package.json
@@ -120,6 +132,13 @@ Provides: bundled(v8) = %{v8_version}
 # do releases often and is almost always far behind the bundled version
 Provides: bundled(http-parser) = %{http_parser_version}
 
+# We used to ship npm separately, but it is so tightly integrated with Node.js
+# (and expected to be present on all Node.js systems) that we ship it bundled
+# now.
+Provides: npm = %{npm_version}
+Provides: npm(npm) = %{npm_version}
+Obsoletes: npm < 3.5.4-6
+
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
 for easily building fast, scalable network applications.
@@ -144,6 +163,12 @@ Summary: Node.js API documentation
 Group: Documentation
 BuildArch: noarch
 
+# We don't require that the main package be installed to
+# use the docs, but if it is installed, make sure the
+# version always matches
+Conflicts: %{name} > %{version}-%{release}
+Conflicts: %{name} < %{version}-%{release}
+
 %description docs
 The API documentation for the Node.js JavaScript runtime.
 
@@ -153,8 +178,7 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/npm \
-       deps/uv \
+rm -rf deps/uv \
        deps/zlib
 
 # remove bundled CA certificates
@@ -173,7 +197,6 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --without-npm \
            --without-dtrace
 
 %if %{?with_debug} == 1
@@ -208,7 +231,7 @@ mkdir -p %{buildroot}%{_prefix}/lib/node_modules
 install -Dpm0644 %{SOURCE7} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs_native.attr
 cat << EOF > %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 #!/bin/sh
-echo 'nodejs(abi) = %nodejs_abi'
+echo 'nodejs(abi%{nodejs_major}) >= %nodejs_abi'
 echo 'nodejs(v8-abi) = %v8_abi'
 EOF
 chmod 0755 %{buildroot}%{_rpmconfigdir}/nodejs_native.req
@@ -225,6 +248,38 @@ cp -p common.gypi %{buildroot}%{_datadir}/node
 # Install the GDB init tool into the documentation directory
 mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 
+# Since the old version of NPM was unbundled, there are a lot of symlinks in
+# it's node_modules directory. We need to keep these as symlinks to ensure we
+# can backtrack on this if we decide to.
+
+# Rename the npm node_modules directory to node_modules.bundled
+mv %{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules \
+   %{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules.bundled
+
+# Recreate all the symlinks
+mkdir -p %{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules
+FILES=%{buildroot}/%{_prefix}/lib/node_modules/npm/node_modules.bundled/*
+for f in $FILES
+do
+  module=`basename $f`
+  ln -s ../node_modules.bundled/$module %{buildroot}%{_prefix}/lib/node_modules/npm/node_modules/$module
+done
+
+# install NPM docs to mandir
+mkdir -p %{buildroot}%{_mandir} \
+         %{buildroot}%{_pkgdocdir}/npm
+
+cp -pr deps/npm/man/* %{buildroot}%{_mandir}/
+rm -rf %{buildroot}%{_prefix}/lib/node_modules/npm/man
+ln -sf %{_mandir}  %{buildroot}%{_prefix}/lib/node_modules/npm/man
+
+# Install Markdown and HTML documentation to %{_pkgdocdir}
+cp -pr deps/npm/html deps/npm/doc %{buildroot}%{_pkgdocdir}/npm/
+rm -rf %{buildroot}%{_prefix}/lib/node_modules/npm/html \
+       %{buildroot}%{_prefix}/lib/node_modules/npm/doc
+
+ln -sf %{_pkgdocdir} %{buildroot}%{_prefix}/lib/node_modules/npm/html
+ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 
 %check
 # Fail the build if the versions don't match
@@ -238,7 +293,6 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 
 %files
 %{_bindir}/node
-%{_mandir}/man1/node.*
 %dir %{_prefix}/lib/node_modules
 %dir %{_datadir}/node
 %dir %{_datadir}/systemtap
@@ -246,11 +300,15 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_datadir}/systemtap/tapset/node.stp
 %{_rpmconfigdir}/fileattrs/nodejs_native.attr
 %{_rpmconfigdir}/nodejs_native.req
-%dir %{_pkgdocdir}
 %license LICENSE
 %doc AUTHORS CHANGELOG.md COLLABORATOR_GUIDE.md GOVERNANCE.md README.md
 %doc ROADMAP.md WORKING_GROUPS.md
- 
+%{_prefix}/lib/node_modules/npm
+%ghost %{_sysconfdir}/npmrc
+%ghost %{_sysconfdir}/npmignore
+%{_bindir}/npm
+%{_mandir}/man*/*
+
 %files devel
 %if %{?with_debug} == 1
 %{_bindir}/node_g
@@ -262,8 +320,14 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %files docs
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/html
+%{_pkgdocdir}/npm/html
+%{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Mar 23 2016 Stephen Gallagher <sgallagh@redhat.com> - 5.9.1-1
+- Update to latest stable release (5.9.1)
+- Bundle npm (3.7.3)
+
 * Tue Feb 23 2016 Tom Hughes <tom@compton.nu> - 4.3.1-1
 - Update to 4.3.1 upstream LTS release
 
