@@ -8,7 +8,7 @@
 
 # == Node.js Version ==
 %global nodejs_major 4
-%global nodejs_minor 3
+%global nodejs_minor 4
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -84,6 +84,7 @@ Requires: ca-certificates
 #we need ABI virtual provides where SONAMEs aren't enough/not present so deps
 #break when binary compatibility is broken
 Provides: nodejs(abi) = %{nodejs_abi}
+Provides: nodejs(abi%{nodejs_major}) = %{nodejs_abi}
 Provides: nodejs(v8-abi) = %{v8_abi}
 
 #this corresponds to the "engine" requirement in package.json
@@ -208,7 +209,7 @@ mkdir -p %{buildroot}%{_prefix}/lib/node_modules
 install -Dpm0644 %{SOURCE7} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs_native.attr
 cat << EOF > %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 #!/bin/sh
-echo 'nodejs(abi) = %nodejs_abi'
+echo 'nodejs(abi%{nodejs_major}) >= %nodejs_abi'
 echo 'nodejs(v8-abi) = %v8_abi'
 EOF
 chmod 0755 %{buildroot}%{_rpmconfigdir}/nodejs_native.req
@@ -264,6 +265,10 @@ mv %{buildroot}/%{_datadir}/doc/node/gdbinit %{buildroot}/%{_pkgdocdir}/gdbinit
 %{_pkgdocdir}/html
 
 %changelog
+* Wed Mar 23 2016 Stephen Gallagher <sgallagh@redhat.com> - 4.4.1-1
+- Update to 4.4.1 upstream LTS release
+- Add more versatile ABI checking
+
 * Tue Feb 23 2016 Tom Hughes <tom@compton.nu> - 4.3.1-1
 - Update to 4.3.1 upstream LTS release
 
