@@ -1,4 +1,4 @@
-From 08ee9476e138421b5f6c4fd928986b125fb82634 Mon Sep 17 00:00:00 2001
+From 9ed79cf3212bf7bba43c2a7f313628092c43daf5 Mon Sep 17 00:00:00 2001
 From: Stephen Gallagher <sgallagh@redhat.com>
 Date: Tue, 1 Dec 2015 16:35:29 -0500
 Subject: [PATCH 1/2] disable running gyp files for bundled deps
@@ -8,10 +8,10 @@ Subject: [PATCH 1/2] disable running gyp files for bundled deps
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index ff0098b70d7b2c2b76c6456534013d186ad44f0f..df64f3a90ecf57fb58963b717647d69ffa4fb391 100644
+index 4962bd4e47e447840cc9890ce465b786bb77ba26..30fa7fb2f621a320706a076724250421da373d1f 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -47,11 +47,11 @@ $(NODE_EXE): config.gypi out/Makefile
+@@ -65,11 +65,11 @@ $(NODE_EXE): config.gypi out/Makefile
  
  $(NODE_G_EXE): config.gypi out/Makefile
  	$(MAKE) -C out BUILDTYPE=Debug V=$(V)
@@ -25,5 +25,5 @@ index ff0098b70d7b2c2b76c6456534013d186ad44f0f..df64f3a90ecf57fb58963b717647d69f
  	if [ -f $@ ]; then
  		$(error Stale $@, please re-run ./configure)
 -- 
-2.7.3
+2.7.2
 
