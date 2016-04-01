@@ -8,8 +8,8 @@
 
 # == Node.js Version ==
 %global nodejs_major 5
-%global nodejs_minor 9
-%global nodejs_patch 1
+%global nodejs_minor 10
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -44,7 +44,7 @@
 
 # npm - from deps/npm/package.json
 %global npm_major 3
-%global npm_minor 7
+%global npm_minor 8
 %global npm_patch 3
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
@@ -324,6 +324,11 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Fri Apr 01 2016 Stephen Gallagher <sgallagh@redhat.com> - %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}-1
+- Update to latest security release (5.10.0)
+- Update bundled npm to 3.8.3
+- Fixes serious man-in-the-middle vulnerability with npm
+
 * Wed Mar 23 2016 Stephen Gallagher <sgallagh@redhat.com> - 5.9.1-1
 - Update to latest stable release (5.9.1)
 - Bundle npm (3.7.3)
