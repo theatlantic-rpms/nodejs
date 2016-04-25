@@ -8,8 +8,8 @@
 
 # == Node.js Version ==
 %global nodejs_major 5
-%global nodejs_minor 10
-%global nodejs_patch 1
+%global nodejs_minor 11
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -31,8 +31,8 @@
 
 # http-parser - from deps/http_parser/http_parser.h
 %global http_parser_major 2
-%global http_parser_minor 6
-%global http_parser_patch 2
+%global http_parser_minor 7
+%global http_parser_patch 0
 %global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 # punycode - from lib/punycode.js
@@ -45,7 +45,7 @@
 # npm - from deps/npm/package.json
 %global npm_major 3
 %global npm_minor 8
-%global npm_patch 3
+%global npm_patch 6
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
@@ -324,6 +324,10 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Apr 25 2016 Stephen Gallagher <sgallagh@redhat.com> - %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}-1
+- Update to latest stable release 5.11.0
+- https://github.com/nodejs/node/blob/v5.11.0/CHANGELOG.md
+
 * Mon Apr 11 2016 Stephen Gallagher <sgallagh@redhat.com> - 5.10.0-1
 - Update to latest stable release 5.10.1
 - https://github.com/nodejs/node/blob/v5.10.1/CHANGELOG.md
