@@ -324,7 +324,7 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Mon Apr 25 2016 Stephen Gallagher <sgallagh@redhat.com> - %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}-1
+* Mon Apr 25 2016 Stephen Gallagher <sgallagh@redhat.com> - 5.11.0-1
 - Update to latest stable release 5.11.0
 - https://github.com/nodejs/node/blob/v5.11.0/CHANGELOG.md
 
