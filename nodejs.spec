@@ -54,8 +54,9 @@
 
 
 Name: nodejs
+Epoch: 1
 Version: %{nodejs_version}
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -135,9 +136,9 @@ Provides: bundled(http-parser) = %{http_parser_version}
 # We used to ship npm separately, but it is so tightly integrated with Node.js
 # (and expected to be present on all Node.js systems) that we ship it bundled
 # now.
-Provides: npm = %{npm_version}
-Provides: npm(npm) = %{npm_version}
-Obsoletes: npm < 3.5.4-6
+Provides: npm = %{epoch}:%{npm_version}
+Provides: npm(npm) = %{epoch}:%{npm_version}
+Obsoletes: npm < 0:3.5.4-6
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -149,7 +150,7 @@ real-time applications that run across distributed devices.
 %package devel
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
-Requires: %{name}%{?_isa} == %{version}-%{release}
+Requires: %{name}%{?_isa} == %{epoch}:%{version}-%{release}
 Requires: libuv-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
@@ -166,8 +167,8 @@ BuildArch: noarch
 # We don't require that the main package be installed to
 # use the docs, but if it is installed, make sure the
 # version always matches
-Conflicts: %{name} > %{version}-%{release}
-Conflicts: %{name} < %{version}-%{release}
+Conflicts: %{name} > %{epoch}:%{version}-%{release}
+Conflicts: %{name} < %{epoch}:%{version}-%{release}
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
@@ -324,6 +325,9 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Apr 28 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:5.11.0-2
+- Add epoch and rebuild to preserve upgrade path
+
 * Mon Apr 25 2016 Stephen Gallagher <sgallagh@redhat.com> - 5.11.0-1
 - Update to latest stable release 5.11.0
 - https://github.com/nodejs/node/blob/v5.11.0/CHANGELOG.md
