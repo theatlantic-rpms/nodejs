@@ -56,7 +56,7 @@
 Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -136,9 +136,13 @@ Provides: bundled(http-parser) = %{http_parser_version}
 # We used to ship npm separately, but it is so tightly integrated with Node.js
 # (and expected to be present on all Node.js systems) that we ship it bundled
 # now.
-Provides: npm = %{epoch}:%{npm_version}
-Provides: npm(npm) = %{epoch}:%{npm_version}
 Obsoletes: npm < 0:3.5.4-6
+Provides: npm = %{epoch}:%{npm_version}
+
+# Do not add epoch to the virtual NPM provides or it will break
+# the automatic dependency-generation script.
+Provides: npm(npm) = %{npm_version}
+
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -282,6 +286,7 @@ rm -rf %{buildroot}%{_prefix}/lib/node_modules/npm/html \
 ln -sf %{_pkgdocdir} %{buildroot}%{_prefix}/lib/node_modules/npm/html
 ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 
+
 %check
 # Fail the build if the versions don't match
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.node, '%{nodejs_version}')"
@@ -310,6 +315,7 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_bindir}/npm
 %{_mandir}/man*/*
 
+
 %files devel
 %if %{?with_debug} == 1
 %{_bindir}/node_g
@@ -325,6 +331,9 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue May 03 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:5.11.0-3
+- Drop the epoch on the virtual provides for npm
+
 * Thu Apr 28 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:5.11.0-2
 - Add epoch and rebuild to preserve upgrade path
 
