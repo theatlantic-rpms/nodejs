@@ -7,18 +7,22 @@
 %endif
 
 # == Node.js Version ==
-%global nodejs_major 5
-%global nodejs_minor 11
+# Note: Fedora should only ship LTS versions of Node.js (currently expected
+# to be major versions with even numbers). The odd-numbered versions are new
+# feature releases that are only supported for nine months, which is shorter
+# than a Fedora release lifecycle.
+%global nodejs_major 6
+%global nodejs_minor 1
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
-%global v8_major 4
-%global v8_minor 6
-%global v8_build 85
-%global v8_patch 31
+%global v8_major 5
+%global v8_minor 0
+%global v8_build 71
+%global v8_patch 35
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -56,7 +60,7 @@
 Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
-Release: 3%{?dist}
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -84,8 +88,8 @@ Patch1: nodejs-disable-gyp-deps.patch
 Patch2: nodejs-use-system-certs.patch
 
 BuildRequires: python-devel
-BuildRequires: libuv-devel >= 1.8.0
-Requires: libuv >= 1.8.0
+BuildRequires: libuv-devel >= 1.9.0
+Requires: libuv >= 1.9.0
 BuildRequires: zlib-devel
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.2
@@ -331,6 +335,10 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon May 09 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.1.0-1
+- Update to latest stable release 6.1.0
+- https://github.com/nodejs/node/blob/v6.1.0/CHANGELOG.md
+
 * Tue May 03 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:5.11.0-3
 - Drop the epoch on the virtual provides for npm
 
