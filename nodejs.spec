@@ -12,7 +12,7 @@
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
 %global nodejs_major 6
-%global nodejs_minor 1
+%global nodejs_minor 2
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -22,7 +22,7 @@
 %global v8_major 5
 %global v8_minor 0
 %global v8_build 71
-%global v8_patch 35
+%global v8_patch 47
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -49,7 +49,7 @@
 # npm - from deps/npm/package.json
 %global npm_major 3
 %global npm_minor 8
-%global npm_patch 6
+%global npm_patch 9
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
@@ -335,6 +335,10 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed May 18 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.2.0-1
+- Update to latest stable release 6.2.0
+- https://github.com/nodejs/node/blob/v6.2.0/doc/changelogs/CHANGELOG_V6.md#6.2.0
+
 * Mon May 09 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.1.0-1
 - Update to latest stable release 6.1.0
 - https://github.com/nodejs/node/blob/v6.1.0/CHANGELOG.md
