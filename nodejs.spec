@@ -13,7 +13,7 @@
 # than a Fedora release lifecycle.
 %global nodejs_major 6
 %global nodejs_minor 2
-%global nodejs_patch 1
+%global nodejs_patch 2
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -49,7 +49,7 @@
 # npm - from deps/npm/package.json
 %global npm_major 3
 %global npm_minor 9
-%global npm_patch 3
+%global npm_patch 5
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
@@ -301,6 +301,9 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 # Ensure we have punycode and that the version matches
 %{buildroot}/%{_bindir}/node -e "require(\"assert\").equal(require(\"punycode\").version, '%{punycode_version}')"
 
+# Ensure we have npm and that the version matches
+NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -e "require(\"assert\").equal(require(\"npm\").version, '%{npm_version}')"
+
 %files
 %{_bindir}/node
 %dir %{_prefix}/lib/node_modules
@@ -335,6 +338,10 @@ ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Sat Jun 18 2016 Tom Hughes <tom@compton.nu> - 1:6.2.2-1
+- Update to latest stable release 6.2.2
+- Add check on npm version
+
 * Tue Jun  7 2016 Tom Hughes <tom@compton.nu> - 1:6.2.1-1
 - Update to latest stable release 6.2.1
 
