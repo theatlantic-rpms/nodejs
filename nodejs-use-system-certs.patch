@@ -1,4 +1,4 @@
-From e0aac817a87c927f70a6f8edb63a4103a4109dfc Mon Sep 17 00:00:00 2001
+From e51cf2ad2627af02e88df48287fe510e885ba1dc Mon Sep 17 00:00:00 2001
 From: Stephen Gallagher <sgallagh@redhat.com>
 Date: Tue, 1 Dec 2015 16:29:07 -0500
 Subject: [PATCH 2/2] Do not bundle CA Certificates
@@ -9,7 +9,7 @@ Content-Transfer-Encoding: 8bit
 CA Certificates are provided by Fedora.
 
 Forwarded: need some feedback before submitting the matter upstream
-Author: Jérémy Lal <kapouer@melix.org>
+Author: J?r?my Lal <kapouer@melix.org>
 Last-Update: 2014-03-02
 
 Modified 2014-05-02 by T.C. Hollingsworth <tchollingsworth@gmail.com> with the
@@ -23,21 +23,22 @@ Node.js 5.7.1
 
 Modified 2016-04-25 by Joseph Wang <joequant@gmail.com> to update for
 Node.js 5.11.0
----
-diff --git a/src/node_crypto.cc b/src/node_crypto.cc
-index 989110c..a55b69d 100644
---- a/src/node_crypto.cc
-+++ b/src/node_crypto.cc
-@@ -121,7 +121,7 @@ static X509_NAME *cnnic_ev_name =
- static uv_mutex_t* locks;
+
+Modified 2016-07-10 by Zuzana Svetlikova <zsvetlik@redhat.com> to update for 
+Node.js 6.3.0
+
+--- node/src/node_crypto.cc	2016-07-10 19:03:17.184502913 +0200
++++ node_crypto.cc	2016-07-10 18:56:28.956440528 +0200
+@@ -118,7 +118,7 @@
+ static Mutex* mutexes;
  
  const char* const root_certs[] = {
 -#include "node_root_certs.h"  // NOLINT(build/include_order)
-+  NULL
++    NULL
  };
  
  X509_STORE* root_cert_store;
-@@ -750,29 +750,17 @@ void SecureContext::AddRootCerts(const FunctionCallbackInfo<Value>& args) {
+@@ -752,29 +752,17 @@
    CHECK_EQ(sc->ca_store_, nullptr);
  
    if (!root_cert_store) {
@@ -74,7 +75,3 @@ index 989110c..a55b69d 100644
  }
  
  
-
--- 
-2.7.2
-

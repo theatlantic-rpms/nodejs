@@ -12,8 +12,8 @@
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
 %global nodejs_major 6
-%global nodejs_minor 2
-%global nodejs_patch 2
+%global nodejs_minor 3
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -41,15 +41,15 @@
 
 # punycode - from lib/punycode.js
 # Note: this was merged into the mainline since 0.6.x
-%global punycode_major 1
-%global punycode_minor 3
-%global punycode_patch 2
+%global punycode_major 2
+%global punycode_minor 0
+%global punycode_patch 0
 %global punycode_version %{punycode_major}.%{punycode_minor}.%{punycode_patch}
 
 # npm - from deps/npm/package.json
 %global npm_major 3
-%global npm_minor 9
-%global npm_patch 5
+%global npm_minor 10
+%global npm_patch 3
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
@@ -91,6 +91,8 @@ BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1.9.0
 Requires: libuv >= 1.9.0
 BuildRequires: zlib-devel
+BuildRequires: gcc >= 4.8.0
+BuildRequires: gcc-c++ >= 4.8.0
 # Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.2
 
@@ -338,6 +340,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Sun Jul 10 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.3.0-1
+- Update node to 6.3.0
+- update punycode to 2.0.0
+- add gcc and gcc-c++ as build dependencies
+- modified system-certs patch
+
 * Sat Jun 18 2016 Tom Hughes <tom@compton.nu> - 1:6.2.2-1
 - Update to latest stable release 6.2.2
 - Add check on npm version
