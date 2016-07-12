@@ -1,0 +1,12 @@
+--- node/node.gyp   2016-07-11 16:30:06.367883998 +0200
++++ node.gyp    2016-07-11 16:35:38.803059930 +0200
+@@ -831,9 +831,7 @@
+       'conditions': [
+         ['v8_inspector=="true"', {
+           'dependencies': [
+-            'deps/openssl/openssl.gyp:openssl',
+             'deps/http_parser/http_parser.gyp:http_parser',
+-            'deps/uv/uv.gyp:libuv'
+           ],
+           'sources': [
+             'src/inspector_socket.cc',
