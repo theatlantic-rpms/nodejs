@@ -60,7 +60,7 @@
 Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
-Release: 2%{?dist}
+Release: 3%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -93,8 +93,8 @@ Patch2: nodejs-use-system-certs.patch
 Patch3: nodejs-fix-nodegyp.patch
 
 BuildRequires: python-devel
-BuildRequires: libuv-devel >= 1.9.0
-Requires: libuv >= 1.9.0
+BuildRequires: libuv-devel >= 1:1.9.1
+Requires: libuv >= 1:1.9.1
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
@@ -346,6 +346,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Jul 18 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.3.0-3
+- Fix epoch version dependency on libuv
+
 * Tue Jul 12 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.3.0-2
 - Patch node.gyp to fix failing ./configure
 
