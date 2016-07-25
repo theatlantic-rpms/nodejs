@@ -13,7 +13,7 @@
 # than a Fedora release lifecycle.
 %global nodejs_major 6
 %global nodejs_minor 3
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 
@@ -22,7 +22,7 @@
 %global v8_major 5
 %global v8_minor 0
 %global v8_build 71
-%global v8_patch 52
+%global v8_patch 57
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -60,7 +60,7 @@
 Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
-Release: 3%{?dist}
+Release: 1%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -87,10 +87,10 @@ Patch1: nodejs-disable-gyp-deps.patch
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch2: nodejs-use-system-certs.patch
 
-# build fails at configure when we build it with shared libraries,
+# build fails at configure when we build node v6.3.0 with shared libraries,
 # so we need to patch node.gyp too
 # this patch might be redundant in another release, since it seems to work with current upstream master
-Patch3: nodejs-fix-nodegyp.patch
+#Patch3: nodejs-fix-nodegyp.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
@@ -201,7 +201,7 @@ rm -rf deps/uv \
 %patch2 -p1
 rm -f src/node_root_certs.h
 
-%patch3 -p1
+#%patch3 -p1
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -346,6 +346,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Jul 25 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.3.1-1
+- Update to 6.3.1
+- comment out %%patch3
+
 * Mon Jul 18 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.3.0-3
 - Fix epoch version dependency on libuv
 
