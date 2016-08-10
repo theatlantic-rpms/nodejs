@@ -47,6 +47,7 @@
 %global punycode_version %{punycode_major}.%{punycode_minor}.%{punycode_patch}
 
 # npm - from deps/npm/package.json
+%global npm_epoch 1
 %global npm_major 3
 %global npm_minor 10
 %global npm_patch 3
@@ -60,7 +61,8 @@
 Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
-Release: 1%{?dist}
+# Keep this release > 100 for F25+ due to a complicated npm upgrade bug
+Release: 100%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -71,7 +73,7 @@ ExclusiveArch: %{nodejs_arches}
 # nodejs bundles openssl, but we use the system version in Fedora
 # because openssl contains prohibited code, we remove openssl completely from
 # the tarball, using the script in Source100
-Source0: node-v%{version}-stripped.tar.gz
+Source0: node-v%{nodejs_version}-stripped.tar.gz
 Source100: %{name}-tarball.sh
 
 # The native module Requires generator remains in the nodejs SRPM, so it knows
@@ -111,7 +113,7 @@ Provides: nodejs(abi%{nodejs_major}) = %{nodejs_abi}
 Provides: nodejs(v8-abi) = %{v8_abi}
 
 #this corresponds to the "engine" requirement in package.json
-Provides: nodejs(engine) = %{version}
+Provides: nodejs(engine) = %{nodejs_version}
 
 # Node.js currently has a conflict with the 'node' package in Fedora
 # The ham-radio group has agreed to rename their binary for us, but
@@ -144,15 +146,9 @@ Provides: bundled(v8) = %{v8_version}
 # do releases often and is almost always far behind the bundled version
 Provides: bundled(http-parser) = %{http_parser_version}
 
-# We used to ship npm separately, but it is so tightly integrated with Node.js
-# (and expected to be present on all Node.js systems) that we ship it bundled
-# now.
-Obsoletes: npm < 0:3.5.4-6
-Provides: npm = %{epoch}:%{npm_version}
-
-# Do not add epoch to the virtual NPM provides or it will break
-# the automatic dependency-generation script.
-Provides: npm(npm) = %{npm_version}
+# Make sure we keep NPM up to date when we update Node.js
+Recommends: npm = %{npm_epoch}:%{npm_version}
+Conflicts: npm < %{npm_epoch}:%{npm_version}
 
 
 %description
@@ -165,7 +161,7 @@ real-time applications that run across distributed devices.
 %package devel
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
-Requires: %{name}%{?_isa} == %{epoch}:%{version}-%{release}
+Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{release}
 Requires: libuv-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
@@ -173,6 +169,26 @@ Requires: nodejs-packaging
 
 %description devel
 Development headers for the Node.js JavaScript runtime.
+
+%package -n npm
+Summary: Node.js Package Manager
+Epoch: %{npm_epoch}
+Version: %{npm_version}
+
+# We used to ship npm separately, but it is so tightly integrated with Node.js
+# (and expected to be present on all Node.js systems) that we ship it bundled
+# now.
+Obsoletes: npm < 0:3.5.4-6
+Provides: npm = %{npm_epoch}:%{npm_version}
+Requires: nodejs = %{epoch}:%{nodejs_version}-%{release}
+
+# Do not add epoch to the virtual NPM provides or it will break
+# the automatic dependency-generation script.
+Provides: npm(npm) = %{npm_version}
+
+%description -n npm
+npm is a package manager for node.js. You can use it to install and publish
+your node programs. It manages dependencies and does other cool stuff.
 
 %package docs
 Summary: Node.js API documentation
@@ -182,15 +198,15 @@ BuildArch: noarch
 # We don't require that the main package be installed to
 # use the docs, but if it is installed, make sure the
 # version always matches
-Conflicts: %{name} > %{epoch}:%{version}-%{release}
-Conflicts: %{name} < %{epoch}:%{version}-%{release}
+Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{release}
+Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{release}
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
 
 
 %prep
-%setup -q -n node-v%{version}
+%setup -q -n node-v%{nodejs_version}
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
@@ -205,7 +221,7 @@ rm -f src/node_root_certs.h
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
-# Node's v8 breaks with GCC 8 because of incorrect usage of methods on
+# Node's v8 breaks with GCC 6 because of incorrect usage of methods on
 # NULL objects. We need to pass -fno-delete-null-pointer-checks
 export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
 export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
@@ -339,6 +355,11 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_datadir}/node/common.gypi
 %{_pkgdocdir}/gdbinit
 
+
+%files -n npm
+%{_bindir}/npm
+
+
 %files docs
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/html
@@ -346,6 +367,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Aug 04 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.3.1-100
+- Split npm into a subpackage
+
 * Mon Jul 25 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.3.1-1
 - Update to 6.3.1
 - comment out %%patch3
