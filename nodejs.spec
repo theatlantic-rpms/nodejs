@@ -126,6 +126,9 @@ Conflicts: node <= 0.3.2-12
 # we don't need the seperate nodejs-punycode package, so we Provide it here so
 # dependent packages don't need to override the dependency generator.
 # See also: RHBZ#11511811
+# UPDATE: punycode will be deprecated and so we should unbundle it in Node v8 
+# and use upstream module instead
+# https://github.com/nodejs/node/commit/29e49fc286080215031a81effbd59eac092fff2f
 Provides: nodejs-punycode = %{punycode_version}
 Provides: npm(punycode) = %{punycode_version}
 
