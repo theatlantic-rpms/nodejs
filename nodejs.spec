@@ -62,7 +62,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 100%{?dist}
+Release: 101%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -97,6 +97,7 @@ Patch2: nodejs-use-system-certs.patch
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
+BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
@@ -233,7 +234,8 @@ export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --without-dtrace
+           --without-dtrace \
+           --with-intl=system-icu
 
 %if %{?with_debug} == 1
 # Setting BUILDTYPE=Debug builds both release and debug binaries
@@ -369,6 +371,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Aug 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.3.1-101
+- Build Node.js with internationalization support
+
 * Thu Aug 04 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.3.1-100
 - Split npm into a subpackage
 
