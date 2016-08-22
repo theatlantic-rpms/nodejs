@@ -63,7 +63,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 1%{?dist}
+Release: 101%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -372,6 +372,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Aug 22 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.4.0-101
+- Bump release to 101 to fix broken npm dependency
+
 * Thu Aug 18 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.4.0-1
 - Update to 6.4.0
 
