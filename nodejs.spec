@@ -12,7 +12,7 @@
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
 %global nodejs_major 6
-%global nodejs_minor 4
+%global nodejs_minor 5
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -20,9 +20,9 @@
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
-%global v8_minor 0
-%global v8_build 71
-%global v8_patch 60
+%global v8_minor 1
+%global v8_build 281
+%global v8_patch 81
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -63,7 +63,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 102%{?dist}
+Release: 103%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -372,6 +372,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Aug 29 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.5.0-103
+- Update to 6.5.0
+
 * Mon Aug 22 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.4.0-102
 - Bump release to 102 to fix broken npm dependency
 
