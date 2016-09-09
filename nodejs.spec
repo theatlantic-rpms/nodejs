@@ -63,9 +63,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-# Always increase this release, never reset it to 1 until and unless we
-# bump epoch again
-Release: 103%{?dist}.8
+Release: 103%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -74,9 +72,9 @@ URL: http://nodejs.org/
 ExclusiveArch: %{nodejs_arches}
 
 # nodejs bundles openssl, but we use the system version in Fedora
-# because openssl contains prohibited code, we replace the bundled copy in the
-# tarball with the current latest Fedora version, using the script in Source100
-Source0: node-v%{nodejs_version}-hobbled.tar.gz
+# because openssl contains prohibited code, we remove openssl completely from
+# the tarball, using the script in Source100
+Source0: node-v%{nodejs_version}-stripped.tar.gz
 Source100: %{name}-tarball.sh
 
 # The native module Requires generator remains in the nodejs SRPM, so it knows
@@ -92,9 +90,6 @@ Patch1: nodejs-disable-gyp-deps.patch
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch2: nodejs-use-system-certs.patch
 
-# When building against the bundled OpenSSL, use the same flags as Fedora would
-Patch3: 0001-Use-Fedora-OpenSSL-build-flags.patch
-
 # build fails at configure when we build node v6.3.0 with shared libraries,
 # so we need to patch node.gyp too
 # this patch might be redundant in another release, since it seems to work with current upstream master
@@ -107,14 +102,8 @@ BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
-
-%if 0%{?fedora}
-# Node.js requires some features from openssl 1.0.2
+# Node.js requires some features from openssl 1.0.1 for SPDY support
 BuildRequires: openssl-devel >= 1:1.0.2
-%else
-# EPEL currently builds with the OpenSSL pulled from Fedora and
-# copied into the buildroot
-%endif
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -163,20 +152,9 @@ Provides: bundled(v8) = %{v8_version}
 Provides: bundled(http-parser) = %{http_parser_version}
 
 # Make sure we keep NPM up to date when we update Node.js
-%if 0%{?rhel}
-Requires: npm = %{npm_epoch}:%{npm_version}
-%else
 Recommends: npm = %{npm_epoch}:%{npm_version}
-%endif
-
 Conflicts: npm < %{npm_epoch}:%{npm_version}
 
-
-# On EPEL, we don't yet have a sufficiently-new version of OpenSSL, so
-# we have to carry it bundled
-%if 0%{?rhel}
-Provides: bundled(openssl) = 1.0.2h
-%endif
 
 %description
 Node.js is a platform built on Chrome's JavaScript runtime
@@ -240,23 +218,11 @@ The API documentation for the Node.js JavaScript runtime.
 rm -rf deps/uv \
        deps/zlib
 
-%if 0%{?rhel}
-# On RHEL, we need to build the bundled (hobbled) OpenSSL
-pushd deps/openssl/openssl
-#./config
-popd
-%else
-# On Fedora, we link with the system version, so completely
-# delete the bundled openssl to be certain it doesn't get used.
-rm -rf deps/openssl
-%global CONFIGURE_OPENSSL --shared-openssl
-%endif
-
 # remove bundled CA certificates
 %patch2 -p1
 rm -f src/node_root_certs.h
 
-%patch3 -p1
+#%patch3 -p1
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -266,7 +232,7 @@ export CFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-de
 export CXXFLAGS='%{optflags} -g -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -fno-delete-null-pointer-checks'
 
 ./configure --prefix=%{_prefix} \
-           %{?CONFIGURE_OPENSSL} \
+           --shared-openssl \
            --shared-zlib \
            --shared-libuv \
            --without-dtrace \
@@ -406,11 +372,6 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Thu Sep 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.%.0-104
-- Prepare for EPEL 7 uplift
-- Use %%{?epel} tag to maintain a single specfile
-- Don't use weak dependencies in EPEL
-
 * Mon Aug 29 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.5.0-103
 - Update to 6.5.0
 
