@@ -1,5 +1,7 @@
 %global with_debug 1
 
+%{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
+
 # ARM builds currently break on the Debug builds, so we'll just
 # build the standard runtime until that gets sorted out.
 %ifarch %{arm} aarch64 %{power64}
@@ -63,7 +65,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 103%{?dist}
+Release: 104%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -83,17 +85,15 @@ Source100: %{name}-tarball.sh
 Source7: nodejs_native.attr
 
 # Disable running gyp on bundled deps we don't use
-Patch1: nodejs-disable-gyp-deps.patch
+Patch1: 0001-disable-running-gyp-files-for-bundled-deps.patch
+
+# EPEL only has OpenSSL 1.0.1, so we need to carry a patch on that platform
+Patch2: 0002-Use-openssl-1.0.1.patch
 
 # use system certificates instead of the bundled ones
 # modified version of Debian patch:
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
-Patch2: nodejs-use-system-certs.patch
-
-# build fails at configure when we build node v6.3.0 with shared libraries,
-# so we need to patch node.gyp too
-# this patch might be redundant in another release, since it seems to work with current upstream master
-#Patch3: nodejs-fix-nodegyp.patch
+Patch3: 0003-CA-Certificates-are-provided-by-Fedora.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
@@ -102,8 +102,12 @@ BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
-# Node.js requires some features from openssl 1.0.1 for SPDY support
+
+%if 0%{?epel}
+BuildRequires: openssl-devel >= 1:1.0.1
+%else
 BuildRequires: openssl-devel >= 1:1.0.2
+%endif
 
 # we need the system certificate store when Patch2 is applied
 Requires: ca-certificates
@@ -113,6 +117,7 @@ Requires: ca-certificates
 Provides: nodejs(abi) = %{nodejs_abi}
 Provides: nodejs(abi%{nodejs_major}) = %{nodejs_abi}
 Provides: nodejs(v8-abi) = %{v8_abi}
+Provides: nodejs(v8-abi%{v8_major}) = %{v8_abi}
 
 #this corresponds to the "engine" requirement in package.json
 Provides: nodejs(engine) = %{nodejs_version}
@@ -152,8 +157,13 @@ Provides: bundled(v8) = %{v8_version}
 Provides: bundled(http-parser) = %{http_parser_version}
 
 # Make sure we keep NPM up to date when we update Node.js
-Recommends: npm = %{npm_epoch}:%{npm_version}
-Conflicts: npm < %{npm_epoch}:%{npm_version}
+%if 0%{?epel}
+# EPEL doesn't support Recommends, so make it strict
+Requires: npm = %{npm_epoch}:%{npm_version}-%{release}
+%else
+Recommends: npm = %{npm_epoch}:%{npm_version}-%{release}
+Conflicts: npm < %{npm_epoch}:%{npm_version}-%{release}
+%endif
 
 
 %description
@@ -219,10 +229,13 @@ rm -rf deps/uv \
        deps/zlib
 
 # remove bundled CA certificates
-%patch2 -p1
 rm -f src/node_root_certs.h
+%patch3 -p1
 
-#%patch3 -p1
+%if 0%{?epel}
+%patch2 -p1
+%endif
+
 
 %build
 # build with debugging symbols and add defines from libuv (#892601)
@@ -271,7 +284,7 @@ install -Dpm0644 %{SOURCE7} %{buildroot}%{_rpmconfigdir}/fileattrs/nodejs_native
 cat << EOF > %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 #!/bin/sh
 echo 'nodejs(abi%{nodejs_major}) >= %nodejs_abi'
-echo 'nodejs(v8-abi) = %v8_abi'
+echo 'nodejs(v8-abi%{v8_major}) >= %v8_abi'
 EOF
 chmod 0755 %{buildroot}%{_rpmconfigdir}/nodejs_native.req
 
@@ -372,6 +385,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Sep 12 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.5.0-104
+- Add support for building on EPEL 7 against OpenSSL 1.0.1
+- Modify v8_abi autorequires to avoid unnecessary rebuilds
+
 * Mon Aug 29 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.5.0-103
 - Update to 6.5.0
 
