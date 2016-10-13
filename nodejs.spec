@@ -14,7 +14,7 @@
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
 %global nodejs_major 6
-%global nodejs_minor 7
+%global nodejs_minor 8
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -24,7 +24,7 @@
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 83
+%global v8_patch 84
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -53,7 +53,7 @@
 %global npm_epoch 1
 %global npm_major 3
 %global npm_minor 10
-%global npm_patch 3
+%global npm_patch 8
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # Filter out the NPM bundled dependencies so we aren't providing them
@@ -65,7 +65,7 @@ Name: nodejs
 Epoch: 1
 Version: %{nodejs_version}
 # Keep this release > 100 for F25+ due to a complicated npm upgrade bug
-Release: 107%{?dist}
+Release: 108%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -383,6 +383,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Oct 13 2016 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.8.0-108
+- Update node to v6.8.0 and npm@3.10.8
+
 * Tue Sep 27 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.7.0-107
 - Update to 6.7.0
 - https://nodejs.org/en/blog/release/v6.7.0/
