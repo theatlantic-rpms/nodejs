@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -404,6 +404,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Sat Oct 15 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.8.1-2
+- Bump release version for tagging bug
+
 * Sat Oct 15 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.8.1-1
 - Update node to v6.8.0
 - Fix FTBFS against non-bundled zlib
