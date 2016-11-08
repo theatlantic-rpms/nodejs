@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 3
+%global nodejs_release 4
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -170,9 +170,9 @@ Provides: bundled(http-parser) = %{http_parser_version}
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
 # EPEL doesn't support Recommends, so make it strict
-Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}
+Requires: npm = %{npm_epoch}:%{npm_version}-%{npm_release}%{?dist}
 %else
-Recommends: npm = %{npm_epoch}:%{npm_version}-%{npm_release}
+Recommends: npm = %{npm_epoch}:%{npm_version}-%{npm_release}%{?dist}
 %endif
 
 
@@ -403,7 +403,7 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-3
+* Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-4
 - Fix incorrect Conflicts for nodejs-docs
 
 * Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-2
