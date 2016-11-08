@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -403,7 +403,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Thu Oct 20 2016 Stephen Gallagher <sgallagh@redhat.com> - -
+* Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-2
+- Bump revision and rebuild for s390x
+
+* Thu Oct 20 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-1
 - Update to 6.9.1 LTS release
 - Fix a regression introduced in v6.8.0 in readable stream that caused unpipe
   to remove the wrong stream
