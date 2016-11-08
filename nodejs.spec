@@ -144,7 +144,7 @@ Conflicts: node <= 0.3.2-12
 # we don't need the seperate nodejs-punycode package, so we Provide it here so
 # dependent packages don't need to override the dependency generator.
 # See also: RHBZ#11511811
-# UPDATE: punycode will be deprecated and so we should unbundle it in Node v8 
+# UPDATE: punycode will be deprecated and so we should unbundle it in Node v8
 # and use upstream module instead
 # https://github.com/nodejs/node/commit/29e49fc286080215031a81effbd59eac092fff2f
 Provides: nodejs-punycode = %{punycode_version}
@@ -186,7 +186,7 @@ real-time applications that run across distributed devices.
 %package devel
 Summary: JavaScript runtime - development headers
 Group: Development/Languages
-Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{release}
+Requires: %{name}%{?_isa} = %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
 Requires: libuv-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
@@ -224,8 +224,8 @@ BuildArch: noarch
 # We don't require that the main package be installed to
 # use the docs, but if it is installed, make sure the
 # version always matches
-Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{nodejs_release}
-Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{nodejs_release}
+Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
+Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{nodejs_release}%{?dist}
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
