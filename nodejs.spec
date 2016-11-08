@@ -19,7 +19,7 @@
 %global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 3
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -224,8 +224,8 @@ BuildArch: noarch
 # We don't require that the main package be installed to
 # use the docs, but if it is installed, make sure the
 # version always matches
-Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{release}
-Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{release}
+Conflicts: %{name} > %{epoch}:%{nodejs_version}-%{nodejs_release}
+Conflicts: %{name} < %{epoch}:%{nodejs_version}-%{nodejs_release}
 
 %description docs
 The API documentation for the Node.js JavaScript runtime.
@@ -403,6 +403,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-3
+- Fix incorrect Conflicts for nodejs-docs
+
 * Tue Nov 08 2016 Stephen Gallagher <sgallagh@redhat.com> - 1:6.9.1-2
 - Bump revision and rebuild for s390x
 
