@@ -1,4 +1,4 @@
-%global with_debug 1
+%global with_debug 0
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
