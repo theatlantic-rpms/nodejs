@@ -19,7 +19,7 @@
 %global nodejs_patch 5
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -72,7 +72,7 @@
 Name: nodejs
 Epoch: %{nodejs_epoch}
 Version: %{nodejs_version}
-Release: %{nodejs_release}%{?dist}.1
+Release: %{nodejs_release}%{?dist}
 Summary: JavaScript runtime
 License: MIT and ASL 2.0 and ISC and BSD
 Group: Development/Languages
@@ -101,6 +101,10 @@ Patch2: 0002-Use-openssl-1.0.1.patch
 # modified version of Debian patch:
 # http://patch-tracker.debian.org/patch/series/view/nodejs/0.10.26~dfsg1-1/2014_donotinclude_root_certs.patch
 Patch3: 0003-CA-Certificates-are-provided-by-Fedora.patch
+
+# Patch to allow building with GCC 7 from
+# https://github.com/nodejs/node/issues/10388#issuecomment-283120731
+Patch4: 0004-Fix-compatibility-with-GCC-7.patch
 
 BuildRequires: python-devel
 BuildRequires: libuv-devel >= 1:1.9.1
@@ -243,6 +247,9 @@ rm -rf deps/uv \
 # remove bundled CA certificates
 rm -f src/node_root_certs.h
 %patch3 -p1
+
+# Fix GCC7 build
+%patch4 -p1
 
 %if 0%{?epel}
 %patch2 -p1
@@ -407,6 +414,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Feb 28 2017 Stephen Gallagher <sgallagh@redhat.com> - -
+- Fix FTBFS against GCC 7
+- Resolves: RHBZ 1423991
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1:6.9.5-1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
