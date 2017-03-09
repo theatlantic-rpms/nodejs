@@ -1,4 +1,4 @@
-From f614552e1698387dd4d245e07de6b75d9c023e65 Mon Sep 17 00:00:00 2001
+From 91d1a67b8cc249af59929cd1a76629a2614860bd Mon Sep 17 00:00:00 2001
 From: Haikel Guemar <hguemar@fedoraproject.org>
 Date: Tue, 26 Jul 2016 22:50:22 +0200
 Subject: [PATCH 2/4] Use openssl 1.0.1
@@ -14,10 +14,10 @@ https://github.com/nodejs/node/issues/2783
  5 files changed, 223 insertions(+), 13 deletions(-)
 
 diff --git a/doc/api/tls.md b/doc/api/tls.md
-index 488337a0764e4cc5e7c27bb8075c1b907696908b..292bbf26ddf5a8dd373cb15e97d220229b4cdcc1 100644
+index 3784210ba7b6c046b39d74b45e44538041d35ae2..3c9d72b8d5ef81d15773aed077bd00d2041c9e93 100644
 --- a/doc/api/tls.md
 +++ b/doc/api/tls.md
-@@ -112,10 +112,16 @@ handshake extensions:
+@@ -113,10 +113,16 @@ handshake extensions:
  * ALPN/NPN - Allows the use of one TLS server for multiple protocols (HTTP,
    SPDY, HTTP/2)
  * SNI - Allows the use of one TLS server for multiple hostnames with different
@@ -73,7 +73,7 @@ index 2e6be8df37c345a383d8a78898daf2a147d90630..239eadbac8ea8e601745a63347a8bb30
    // file access modes
    NODE_DEFINE_CONSTANT(target, O_RDONLY);
 diff --git a/src/node_crypto.cc b/src/node_crypto.cc
-index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66e6f49bf4 100644
+index 482ec230c0f4500b63b705d705a142e63ff179e5..c5630f30d0bef75ced53b36062bb1f0324dbdb9d 100644
 --- a/src/node_crypto.cc
 +++ b/src/node_crypto.cc
 @@ -22,10 +22,86 @@
@@ -163,7 +163,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
      if (!Buffer::HasInstance(val) && !val->IsString()) {                       \
        return env->ThrowTypeError(prefix " must be a string or a buffer");      \
      }                                                                          \
-@@ -158,11 +234,15 @@ template int SSLWrap<TLSWrap>::SelectNextProtoCallback(
+@@ -161,11 +237,15 @@ template int SSLWrap<TLSWrap>::SelectNextProtoCallback(
  #ifdef NODE__HAVE_TLSEXT_STATUS_CB
  template int SSLWrap<TLSWrap>::TLSExtStatusCallback(SSL* s, void* arg);
  #endif
@@ -179,7 +179,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  #ifdef TLSEXT_TYPE_application_layer_protocol_negotiation
  template int SSLWrap<TLSWrap>::SelectALPNCallback(
      SSL* s,
-@@ -278,12 +358,16 @@ void SecureContext::Initialize(Environment* env, Local<Object> target) {
+@@ -281,12 +361,16 @@ void SecureContext::Initialize(Environment* env, Local<Object> target) {
    env->SetProtoMethod(t, "setCert", SecureContext::SetCert);
    env->SetProtoMethod(t, "addCACert", SecureContext::AddCACert);
    env->SetProtoMethod(t, "addCRL", SecureContext::AddCRL);
@@ -196,7 +196,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
                        SecureContext::SetSessionIdContext);
    env->SetProtoMethod(t, "setSessionTimeout",
                        SecureContext::SetSessionTimeout);
-@@ -513,12 +597,24 @@ int SSL_CTX_use_certificate_chain(SSL_CTX* ctx,
+@@ -514,12 +598,24 @@ int SSL_CTX_use_certificate_chain(SSL_CTX* ctx,
      SSL_CTX_clear_extra_chain_certs(ctx);
  
      for (int i = 0; i < sk_X509_num(extra_certs); i++) {
@@ -223,7 +223,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
          ret = 0;
          *issuer = nullptr;
          goto end;
-@@ -793,10 +889,11 @@ void SecureContext::SetCiphers(const FunctionCallbackInfo<Value>& args) {
+@@ -868,10 +964,11 @@ void SecureContext::SetCiphers(const FunctionCallbackInfo<Value>& args) {
    const node::Utf8Value ciphers(args.GetIsolate(), args[0]);
    SSL_CTX_set_cipher_list(sc->ctx_, *ciphers);
  }
@@ -235,7 +235,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    ASSIGN_OR_RETURN_UNWRAP(&sc, args.Holder());
    Environment* env = sc->env();
  
-@@ -820,12 +917,14 @@ void SecureContext::SetECDHCurve(const FunctionCallbackInfo<Value>& args) {
+@@ -895,12 +992,14 @@ void SecureContext::SetECDHCurve(const FunctionCallbackInfo<Value>& args) {
    SSL_CTX_set_options(sc->ctx_, SSL_OP_SINGLE_ECDH_USE);
    SSL_CTX_set_tmp_ecdh(sc->ctx_, ecdh);
  
@@ -250,7 +250,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    ASSIGN_OR_RETURN_UNWRAP(&sc, args.This());
    Environment* env = sc->env();
    ClearErrorOnReturn clear_error_on_return;
-@@ -860,10 +959,11 @@ void SecureContext::SetDHParam(const FunctionCallbackInfo<Value>& args) {
+@@ -935,10 +1034,11 @@ void SecureContext::SetDHParam(const FunctionCallbackInfo<Value>& args) {
    DH_free(dh);
  
    if (!r)
@@ -262,7 +262,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  void SecureContext::SetOptions(const FunctionCallbackInfo<Value>& args) {
    SecureContext* sc;
    ASSIGN_OR_RETURN_UNWRAP(&sc, args.Holder());
-@@ -1870,10 +1970,11 @@ void SSLWrap<Base>::GetEphemeralKeyInfo(
+@@ -1952,10 +2052,11 @@ void SSLWrap<Base>::GetEphemeralKeyInfo(
          info->Set(env->type_string(),
                    FIXED_ONE_BYTE_STRING(env->isolate(), "DH"));
          info->Set(env->size_string(),
@@ -274,7 +274,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
            EC_KEY* ec = EVP_PKEY_get1_EC_KEY(key);
            int nid = EC_GROUP_get_curve_name(EC_KEY_get0_group(ec));
            EC_KEY_free(ec);
-@@ -1882,10 +1983,11 @@ void SSLWrap<Base>::GetEphemeralKeyInfo(
+@@ -1964,10 +2065,11 @@ void SSLWrap<Base>::GetEphemeralKeyInfo(
            info->Set(env->name_string(),
                      OneByteString(args.GetIsolate(), OBJ_nid2sn(nid)));
            info->Set(env->size_string(),
@@ -286,7 +286,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    }
  
    return args.GetReturnValue().Set(info);
-@@ -2300,11 +2402,16 @@ void SSLWrap<Base>::WaitForCertCb(CertCb cb, void* arg) {
+@@ -2382,11 +2484,16 @@ void SSLWrap<Base>::WaitForCertCb(CertCb cb, void* arg) {
    cert_cb_arg_ = arg;
  }
  
@@ -303,7 +303,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    if (!w->is_server())
      return 1;
  
-@@ -2369,23 +2476,57 @@ void SSLWrap<Base>::CertCbDone(const FunctionCallbackInfo<Value>& args) {
+@@ -2451,23 +2558,57 @@ void SSLWrap<Base>::CertCbDone(const FunctionCallbackInfo<Value>& args) {
      ASSIGN_OR_RETURN_UNWRAP(&sc, ctx.As<Object>());
      w->sni_context_.Reset();
      w->sni_context_.Reset(env->isolate(), ctx);
@@ -371,7 +371,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
      if (!rv) {
        unsigned long err = ERR_get_error();  // NOLINT(runtime/int)
        if (!err)
-@@ -2445,14 +2586,18 @@ void SSLWrap<Base>::SetSNIContext(SecureContext* sc) {
+@@ -2527,14 +2668,18 @@ void SSLWrap<Base>::SetSNIContext(SecureContext* sc) {
  }
  
  
@@ -391,7 +391,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  
    // NOTE: `SSL_set_client_CA_list` takes the ownership of `list`
    SSL_set_client_CA_list(ssl_, list);
-@@ -2726,11 +2871,15 @@ inline int VerifyCallback(int preverify_ok, X509_STORE_CTX* ctx) {
+@@ -2808,11 +2953,15 @@ inline int VerifyCallback(int preverify_ok, X509_STORE_CTX* ctx) {
  
    // Server does not need to check the whitelist.
    SSL* ssl = static_cast<SSL*>(
@@ -407,7 +407,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    // Client needs to check if the server cert is listed in the
    // whitelist when it is issued by the specific rootCAs.
    CheckResult ret = CheckWhitelistedServerCert(ctx);
-@@ -2809,11 +2958,25 @@ void Connection::New(const FunctionCallbackInfo<Value>& args) {
+@@ -2891,11 +3040,25 @@ void Connection::New(const FunctionCallbackInfo<Value>& args) {
    if (is_server)
      SSL_set_info_callback(conn->ssl_, SSLInfoCallback);
  
@@ -433,7 +433,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    if (is_server) {
      SSL_CTX_set_tlsext_servername_callback(sc->ctx_, SelectSNIContextCallback_);
    } else if (args[2]->IsString()) {
-@@ -4394,10 +4557,11 @@ void PublicKeyCipher::Cipher(const FunctionCallbackInfo<Value>& args) {
+@@ -4476,10 +4639,11 @@ void PublicKeyCipher::Cipher(const FunctionCallbackInfo<Value>& args) {
    args.GetReturnValue().Set(vbuf);
    delete[] out_value;
  }
@@ -445,7 +445,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  
    const PropertyAttribute attributes =
        static_cast<PropertyAttribute>(v8::ReadOnly | v8::DontDelete);
-@@ -4795,12 +4959,14 @@ bool DiffieHellman::VerifyContext() {
+@@ -4877,12 +5041,14 @@ bool DiffieHellman::VerifyContext() {
    if (!DH_check(dh, &codes))
      return false;
    verifyError_ = codes;
@@ -460,7 +460,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  
    Local<FunctionTemplate> t = env->NewFunctionTemplate(New);
  
-@@ -5024,10 +5190,11 @@ void ECDH::SetPrivateKey(const FunctionCallbackInfo<Value>& args) {
+@@ -5106,10 +5272,11 @@ void ECDH::SetPrivateKey(const FunctionCallbackInfo<Value>& args) {
      return env->ThrowError("Failed to set generated public key");
    }
  
@@ -472,7 +472,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  void ECDH::SetPublicKey(const FunctionCallbackInfo<Value>& args) {
    Environment* env = Environment::GetCurrent(args);
  
-@@ -5577,10 +5744,11 @@ void GetHashes(const FunctionCallbackInfo<Value>& args) {
+@@ -5659,10 +5826,11 @@ void GetHashes(const FunctionCallbackInfo<Value>& args) {
    EVP_MD_do_all_sorted(array_push_back<EVP_MD>, &ctx);
    args.GetReturnValue().Set(ctx.arr);
  }
@@ -484,7 +484,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    const size_t num_curves = EC_get_builtin_curves(nullptr, 0);
    Local<Array> arr = Array::New(env->isolate(), num_curves);
    EC_builtin_curve* curves;
-@@ -5601,10 +5769,11 @@ void GetCurves(const FunctionCallbackInfo<Value>& args) {
+@@ -5683,10 +5851,11 @@ void GetCurves(const FunctionCallbackInfo<Value>& args) {
      free(curves);
    }
  
@@ -496,7 +496,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
  bool VerifySpkac(const char* data, unsigned int len) {
    bool i = 0;
    EVP_PKEY* pkey = nullptr;
-@@ -5913,12 +6082,16 @@ void InitCrypto(Local<Object> target,
+@@ -5995,12 +6164,16 @@ void InitCrypto(Local<Object> target,
  
    Environment* env = Environment::GetCurrent(context);
    SecureContext::Initialize(env, target);
@@ -513,7 +513,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
    Sign::Initialize(env, target);
    Verify::Initialize(env, target);
  
-@@ -5934,11 +6107,13 @@ void InitCrypto(Local<Object> target,
+@@ -6016,11 +6189,13 @@ void InitCrypto(Local<Object> target,
    env->SetMethod(target, "randomBytes", RandomBytes);
    env->SetMethod(target, "timingSafeEqual", TimingSafeEqual);
    env->SetMethod(target, "getSSLCiphers", GetSSLCiphers);
@@ -528,7 +528,7 @@ index b83794a770d672d492a5b01aee9a46fcaa39be85..89cd651248361d4fff3c442d5e36cc66
                                           EVP_PKEY_encrypt>);
    env->SetMethod(target, "privateDecrypt",
 diff --git a/src/node_crypto.h b/src/node_crypto.h
-index 24ac77365cf45578f2be359f18b8e9c347209531..2b1b6ae80f668149c0691c44aa4e295f21a82b8e 100644
+index 175206c40df58602b0c24d039b8b5a8bb6f56ba3..5ecc43b08d0b4d97311f09271a26f5a735a6e018 100644
 --- a/src/node_crypto.h
 +++ b/src/node_crypto.h
 @@ -16,12 +16,16 @@
@@ -548,7 +548,7 @@ index 24ac77365cf45578f2be359f18b8e9c347209531..2b1b6ae80f668149c0691c44aa4e295f
  #endif  // !OPENSSL_NO_ENGINE
  #include <openssl/err.h>
  #include <openssl/evp.h>
-@@ -99,12 +103,16 @@ class SecureContext : public BaseObject {
+@@ -100,12 +104,16 @@ class SecureContext : public BaseObject {
    static void SetCert(const v8::FunctionCallbackInfo<v8::Value>& args);
    static void AddCACert(const v8::FunctionCallbackInfo<v8::Value>& args);
    static void AddCRL(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -565,7 +565,7 @@ index 24ac77365cf45578f2be359f18b8e9c347209531..2b1b6ae80f668149c0691c44aa4e295f
        const v8::FunctionCallbackInfo<v8::Value>& args);
    static void SetSessionTimeout(
        const v8::FunctionCallbackInfo<v8::Value>& args);
-@@ -281,11 +289,15 @@ class SSLWrap {
+@@ -273,11 +281,15 @@ class SSLWrap {
                                  unsigned char* outlen,
                                  const unsigned char* in,
                                  unsigned int inlen,
@@ -581,7 +581,7 @@ index 24ac77365cf45578f2be359f18b8e9c347209531..2b1b6ae80f668149c0691c44aa4e295f
  
    void DestroySSL();
    void WaitForCertCb(CertCb cb, void* arg);
-@@ -643,10 +655,11 @@ class PublicKeyCipher {
+@@ -635,10 +647,11 @@ class PublicKeyCipher {
              EVP_PKEY_cipher_init_t EVP_PKEY_cipher_init,
              EVP_PKEY_cipher_t EVP_PKEY_cipher>
    static void Cipher(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -593,7 +593,7 @@ index 24ac77365cf45578f2be359f18b8e9c347209531..2b1b6ae80f668149c0691c44aa4e295f
    ~DiffieHellman() override {
      if (dh != nullptr) {
        DH_free(dh);
-@@ -688,11 +701,13 @@ class DiffieHellman : public BaseObject {
+@@ -680,11 +693,13 @@ class DiffieHellman : public BaseObject {
  
    bool initialised_;
    int verifyError_;
@@ -607,7 +607,7 @@ index 24ac77365cf45578f2be359f18b8e9c347209531..2b1b6ae80f668149c0691c44aa4e295f
    ~ECDH() override {
      if (key_ != nullptr)
        EC_KEY_free(key_);
-@@ -725,10 +740,11 @@ class ECDH : public BaseObject {
+@@ -717,10 +732,11 @@ class ECDH : public BaseObject {
    bool IsKeyValidForCurve(const BIGNUM* private_key);
  
    EC_KEY* key_;
@@ -644,5 +644,5 @@ index d1b1aeccdd95b00b3fd0421c08fd7816cd70d182..a6e63d7c1ccc81e6f7d782dffe833234
    } else if (is_client()) {
      // Enough space for server response (hello, cert)
 -- 
-2.11.1
+2.12.0
 
