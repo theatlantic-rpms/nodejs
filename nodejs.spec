@@ -16,17 +16,17 @@
 %global nodejs_epoch 1
 %global nodejs_major 6
 %global nodejs_minor 10
-%global nodejs_patch 1
+%global nodejs_patch 2
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 3
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 95
+%global v8_patch 98
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -424,9 +424,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Apr 12 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.2-1
+- Update to 6.10.2
+
 * Mon Apr 03 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.1-3
 - Move NPM manpages into the correct subpackage
-- Fixes: rhbx#1433403
+- Fixes: rhbz#1433403
 
 * Mon Apr 03 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.1-2
 - Revert upstream change that is incompatible with OpenSSL 1.0.1
