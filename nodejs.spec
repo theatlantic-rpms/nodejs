@@ -19,7 +19,7 @@
 %global nodejs_patch 2
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -101,8 +101,8 @@ Patch2: 0002-Use-openssl-1.0.1.patch
 # Backported from upstream 7.5.0+
 Patch3: 0003-crypto-Use-system-CAs-instead-of-using-bundled-ones.patch
 
-# Patch to allow building with GCC 7 from
-# https://github.com/nodejs/node/issues/10388#issuecomment-283120731
+# Backported upstream patch to allow building with GCC 7 from
+# https://github.com/nodejs/node/commit/2bbee49e6f170a5d6628444a7c9a2235fe0dd929
 Patch4: 0004-Fix-compatibility-with-GCC-7.patch
 
 # RHEL 7 still uses OpenSSL 1.0.1 for now, and it segfaults on SSL
@@ -424,6 +424,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Apr 19 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.2-2
+- Switch to final upstream patch for GCC 7 compatibility
+
 * Wed Apr 12 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.2-1
 - Update to 6.10.2
 
