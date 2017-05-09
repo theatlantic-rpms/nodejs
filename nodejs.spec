@@ -1,5 +1,7 @@
 %global with_debug 1
 
+%{!?_with_bootstrap: %global bootstrap 1}
+
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
 # ARM builds currently break on the Debug builds, so we'll just
@@ -19,7 +21,7 @@
 %global nodejs_patch 2
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 3
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -116,7 +118,10 @@ BuildRequires: libicu-devel
 BuildRequires: zlib-devel
 BuildRequires: gcc >= 4.8.0
 BuildRequires: gcc-c++ >= 4.8.0
+
+%if ! 0%{?bootstrap}
 BuildRequires: systemtap-sdt-devel
+%endif
 
 %if 0%{?epel}
 BuildRequires: openssl-devel >= 1:1.0.1
@@ -279,6 +284,7 @@ export CXXFLAGS='%{optflags} -g \
 export CFLAGS="$(echo ${CFLAGS} | tr '\n\\' '  ')"
 export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
 
+%if ! 0%{?bootstrap}
 ./configure --prefix=%{_prefix} \
            --shared-openssl \
            --shared-zlib \
@@ -286,6 +292,15 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --with-dtrace \
            --with-intl=system-icu \
            --openssl-use-def-ca-store
+%else
+./configure --prefix=%{_prefix} \
+           --shared-openssl \
+           --shared-zlib \
+           --shared-libuv \
+           --without-dtrace \
+           --with-intl=system-icu \
+           --openssl-use-def-ca-store
+%endif
 
 %if %{?with_debug} == 1
 # Setting BUILDTYPE=Debug builds both release and debug binaries
@@ -424,6 +439,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue May 09 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.2-3
+- Bootstrap systemtap-sdt-devel for modularity
+
 * Wed Apr 19 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.2-2
 - Switch to final upstream patch for GCC 7 compatibility
 
