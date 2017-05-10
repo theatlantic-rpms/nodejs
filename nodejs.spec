@@ -18,17 +18,17 @@
 %global nodejs_epoch 1
 %global nodejs_major 6
 %global nodejs_minor 10
-%global nodejs_patch 2
+%global nodejs_patch 3
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 3
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
 %global v8_minor 1
 %global v8_build 281
-%global v8_patch 98
+%global v8_patch 101
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
@@ -38,12 +38,6 @@
 %global c_ares_minor 10
 %global c_ares_patch 1
 %global c_ares_version %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
-
-# http-parser - from deps/http_parser/http_parser.h
-%global http_parser_major 2
-%global http_parser_minor 7
-%global http_parser_patch 0
-%global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 # punycode - from lib/punycode.js
 # Note: this was merged into the mainline since 0.6.x
@@ -122,6 +116,7 @@ BuildRequires: gcc-c++ >= 4.8.0
 %if ! 0%{?bootstrap}
 BuildRequires: systemtap-sdt-devel
 %endif
+BuildRequires: http-parser-devel >= 2.7.0
 
 %if 0%{?epel}
 BuildRequires: openssl-devel >= 1:1.0.1
@@ -175,10 +170,6 @@ Provides: bundled(c-ares) = %{c_ares_version}
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
 Provides: bundled(v8) = %{v8_version}
-
-# Node.js and http-parser share an upstream. The http-parser upstream does not
-# do releases often and is almost always far behind the bundled version
-Provides: bundled(http-parser) = %{http_parser_version}
 
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
@@ -249,7 +240,8 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/icu-small \
+rm -rf deps/http-parser \
+       deps/icu-small \
        deps/uv \
        deps/zlib
 
@@ -289,6 +281,7 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
+           --shared-http-parser \
            --with-dtrace \
            --with-intl=system-icu \
            --openssl-use-def-ca-store
@@ -297,6 +290,7 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
+           --shared-http-parser \
            --without-dtrace \
            --with-intl=system-icu \
            --openssl-use-def-ca-store
@@ -382,12 +376,17 @@ ln -sf %{_pkgdocdir} %{buildroot}%{_prefix}/lib/node_modules/npm/html
 ln -sf %{_pkgdocdir}/npm/html %{buildroot}%{_prefix}/lib/node_modules/npm/doc
 
 
+# Node tries to install some python files into a documentation directory
+# (and not the proper one). Remove them for now until we figure out what to
+# do with them.
+rm -f %{buildroot}/%{_defaultdocdir}/node/lldb_commands.py \
+      %{buildroot}/%{_defaultdocdir}/node/lldbinit
+
 %check
 # Fail the build if the versions don't match
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.node, '%{nodejs_version}')"
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.v8, '%{v8_version}')"
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.ares.replace(/-DEV$/, ''), '%{c_ares_version}')"
-%{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.http_parser, '%{http_parser_version}')"
 
 # Ensure we have punycode and that the version matches
 %{buildroot}/%{_bindir}/node -e "require(\"assert\").equal(require(\"punycode\").version, '%{punycode_version}')"
@@ -412,7 +411,6 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_rpmconfigdir}/nodejs_native.req
 %license LICENSE
 %doc AUTHORS CHANGELOG.md COLLABORATOR_GUIDE.md GOVERNANCE.md README.md
-%doc ROADMAP.md WORKING_GROUPS.md
 %doc %{_mandir}/man1/node.1*
 
 
@@ -443,6 +441,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed May 10 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.3-1
+- Update to 6.10.3 (LTS)
+- https://nodejs.org/en/blog/release/v6.10.3/
+- Stop using the bundled http-parser now that there is an upstream
+  release with a new-enough version.
+
 * Tue May 09 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.2-3
 - Bootstrap systemtap-sdt-devel for modularity
 
