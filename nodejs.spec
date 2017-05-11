@@ -297,7 +297,6 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-openssl \
            --shared-zlib \
            --shared-libuv \
-           --shared-http-parser \
            --without-dtrace \
            --with-intl=system-icu \
            --openssl-use-def-ca-store
