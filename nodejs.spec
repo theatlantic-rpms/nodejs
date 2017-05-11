@@ -21,7 +21,7 @@
 %global nodejs_patch 3
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -38,6 +38,12 @@
 %global c_ares_minor 10
 %global c_ares_patch 1
 %global c_ares_version %{c_ares_major}.%{c_ares_minor}.%{c_ares_patch}
+
+# http-parser - from deps/http_parser/http_parser.h
+%global http_parser_major 2
+%global http_parser_minor 7
+%global http_parser_patch 0
+%global http_parser_version %{http_parser_major}.%{http_parser_minor}.%{http_parser_patch}
 
 # punycode - from lib/punycode.js
 # Note: this was merged into the mainline since 0.6.x
@@ -115,8 +121,10 @@ BuildRequires: gcc-c++ >= 4.8.0
 
 %if ! 0%{?bootstrap}
 BuildRequires: systemtap-sdt-devel
-%endif
 BuildRequires: http-parser-devel >= 2.7.0
+%else
+Provides: bundled(http-parser) = %{http_parser_version}
+%endif
 
 %if 0%{?epel}
 BuildRequires: openssl-devel >= 1:1.0.1
@@ -240,8 +248,7 @@ The API documentation for the Node.js JavaScript runtime.
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/http-parser \
-       deps/icu-small \
+rm -rf deps/icu-small \
        deps/uv \
        deps/zlib
 
@@ -441,6 +448,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu May 11 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.3-2
+- Provide bundled http-parser in case of boostraping
+
 * Wed May 10 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:6.10.3-1
 - Update to 6.10.3 (LTS)
 - https://nodejs.org/en/blog/release/v6.10.3/
