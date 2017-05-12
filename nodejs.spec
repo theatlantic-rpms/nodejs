@@ -1,6 +1,6 @@
 %global with_debug 1
 
-%{!?_with_bootstrap: %global bootstrap 1}
+%{!?_with_bootstrap: %global bootstrap 0}
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
@@ -21,7 +21,7 @@
 %global nodejs_patch 3
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 2
+%global nodejs_release 3 
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -447,6 +447,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Fri May 12 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.3-3
+- Rebuild without bootstrap
+
 * Thu May 11 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.10.3-2
 - Provide bundled http-parser in case of boostraping
 
