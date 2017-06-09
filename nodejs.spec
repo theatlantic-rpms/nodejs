@@ -440,7 +440,7 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
-* Fri May 12 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-1
+* Fri Jun 09 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-1
 - Update to 6.11.0
 - remove system CA patch since it was merged upstream
 - https://github.com/nodejs/node/pull/8334
