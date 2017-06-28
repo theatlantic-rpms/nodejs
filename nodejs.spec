@@ -16,9 +16,9 @@
 # feature releases that are only supported for nine months, which is shorter
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
-%global nodejs_major 6
-%global nodejs_minor 11
-%global nodejs_patch 0
+%global nodejs_major 8
+%global nodejs_minor 1
+%global nodejs_patch 2
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -26,14 +26,15 @@
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
 %global v8_major 5
-%global v8_minor 1
-%global v8_build 281
-%global v8_patch 102
+%global v8_minor 8
+%global v8_build 283
+%global v8_patch 41
 # V8 presently breaks ABI at least every x.y release while never bumping SONAME
 %global v8_abi %{v8_major}.%{v8_minor}
 %global v8_version %{v8_major}.%{v8_minor}.%{v8_build}.%{v8_patch}
 
 # c-ares - from deps/cares/include/ares_version.h
+# https://github.com/nodejs/node/pull/9332
 %global c_ares_major 1
 %global c_ares_minor 10
 %global c_ares_patch 1
@@ -55,9 +56,9 @@
 
 # npm - from deps/npm/package.json
 %global npm_epoch 1
-%global npm_major 3
-%global npm_minor 10
-%global npm_patch 10
+%global npm_major 5
+%global npm_minor 0
+%global npm_patch 3
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # In order to avoid needing to keep incrementing the release version for the
@@ -99,9 +100,8 @@ Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 # EPEL only has OpenSSL 1.0.1, so we need to carry a patch on that platform
 Patch2: 0002-Use-openssl-1.0.1.patch
 
-# Backported upstream patch to allow building with GCC 7 from
-# https://github.com/nodejs/node/commit/2bbee49e6f170a5d6628444a7c9a2235fe0dd929
-Patch4: 0004-Fix-compatibility-with-GCC-7.patch
+# Patch CVE-2017-1000381 until upstream updates to new version/merges patch
+Patch3: 0003-c-ares-NAPTR-parser-out-of-bounds-access.patch
 
 # RHEL 7 still uses OpenSSL 1.0.1 for now, and it segfaults on SSL
 # Revert this upstream patch until RHEL 7 upgrades to 1.0.2
@@ -118,6 +118,7 @@ BuildRequires: gcc-c++ >= 4.8.0
 %if ! 0%{?bootstrap}
 BuildRequires: systemtap-sdt-devel
 BuildRequires: http-parser-devel >= 2.7.0
+Requires: http-parser >= 2.7.0
 %else
 Provides: bundled(http-parser) = %{http_parser_version}
 %endif
@@ -200,6 +201,10 @@ Requires: openssl-devel%{?_isa}
 Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
+%if ! 0%{?bootstrap}
+BuildRequires: http-parser-devel%{?_isa}
+%endif
+
 %description devel
 Development headers for the Node.js JavaScript runtime.
 
@@ -248,8 +253,8 @@ rm -rf deps/icu-small \
        deps/uv \
        deps/zlib
 
-# Fix GCC7 build
-%patch4 -p1
+# Patch CVE in c-ares
+%patch3 -p1
 
 %if 0%{?epel}
 %patch2 -p1
@@ -429,6 +434,7 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %ghost %{_sysconfdir}/npmignore
 %doc %{_mandir}/man*/npm*
 %doc %{_mandir}/man5/package.json.5*
+%doc %{_mandir}/man5/package-lock.json.5*
 %doc %{_mandir}/man7/removing-npm.7*
 %doc %{_mandir}/man7/semver.7*
 
@@ -440,6 +446,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Jun 28 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.1.2-1
+- Update to v8.1.2
+- remove GCC 7 patch, as it is now fixed in node >= 6.12
+
 * Fri Jun 09 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:6.11.0-1
 - Update to 6.11.0
 - remove system CA patch since it was merged upstream
