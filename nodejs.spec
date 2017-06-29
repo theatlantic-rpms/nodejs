@@ -18,7 +18,7 @@
 %global nodejs_epoch 1
 %global nodejs_major 8
 %global nodejs_minor 1
-%global nodejs_patch 2
+%global nodejs_patch 3
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -446,6 +446,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Jun 29 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.1.3-1
+- Update to v8.1.3
+- https://nodejs.org/en/blog/release/v8.1.3/ 
+
 * Wed Jun 28 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.1.2-1
 - Update to v8.1.2
 - remove GCC 7 patch, as it is now fixed in node >= 6.12
