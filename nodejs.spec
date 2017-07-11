@@ -18,7 +18,7 @@
 %global nodejs_epoch 1
 %global nodejs_major 8
 %global nodejs_minor 1
-%global nodejs_patch 3
+%global nodejs_patch 4
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -99,9 +99,6 @@ Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 
 # EPEL only has OpenSSL 1.0.1, so we need to carry a patch on that platform
 Patch2: 0002-Use-openssl-1.0.1.patch
-
-# Patch CVE-2017-1000381 until upstream updates to new version/merges patch
-Patch3: 0003-c-ares-NAPTR-parser-out-of-bounds-access.patch
 
 # RHEL 7 still uses OpenSSL 1.0.1 for now, and it segfaults on SSL
 # Revert this upstream patch until RHEL 7 upgrades to 1.0.2
@@ -252,9 +249,6 @@ The API documentation for the Node.js JavaScript runtime.
 rm -rf deps/icu-small \
        deps/uv \
        deps/zlib
-
-# Patch CVE in c-ares
-%patch3 -p1
 
 %if 0%{?epel}
 %patch2 -p1
@@ -446,6 +440,11 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Jul 11 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.1.4-1
+- Update to v8.1.4
+- https://nodejs.org/en/blog/release/v8.1.4/
+- Drop upstreamed c-ares patch
+
 * Thu Jun 29 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.1.3-1
 - Update to v8.1.3
 - https://nodejs.org/en/blog/release/v8.1.3/ 
