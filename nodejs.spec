@@ -104,7 +104,7 @@ Patch2: 0002-Use-openssl-1.0.1.patch
 # Revert this upstream patch until RHEL 7 upgrades to 1.0.2
 Patch5: EPEL01-openssl101-compat.patch
 
-BuildRequires: python-devel
+BuildRequires: python2-devel
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
 BuildRequires: libicu-devel
@@ -436,10 +436,15 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %files docs
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/html
+%{_pkgdocdir}/npm*
 %{_pkgdocdir}/npm/html
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Mon Jul 17 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.1.4-2
+- Rename python-devel to python2-devel
+- own %%{_pkgdocdir}/npm
+
 * Tue Jul 11 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.1.4-1
 - Update to v8.1.4
 - https://nodejs.org/en/blog/release/v8.1.4/
