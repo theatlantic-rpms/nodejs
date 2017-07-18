@@ -21,7 +21,7 @@
 %global nodejs_patch 4
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 3
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -199,7 +199,7 @@ Requires: zlib-devel%{?_isa}
 Requires: nodejs-packaging
 
 %if ! 0%{?bootstrap}
-BuildRequires: http-parser-devel%{?_isa}
+Requires: http-parser-devel%{?_isa}
 %endif
 
 %description devel
@@ -441,6 +441,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Tue Jul 18 2017 Igor Gnatenko <ignatenko@redhat.com> - 1:8.1.4-3
+- s/BuildRequires/Requires/ for http-parser-devel%%{?_isa}
+
 * Mon Jul 17 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.1.4-2
 - Rename python-devel to python2-devel
 - own %%{_pkgdocdir}/npm
