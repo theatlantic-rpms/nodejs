@@ -17,11 +17,11 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 8
-%global nodejs_minor 1
-%global nodejs_patch 4
+%global nodejs_minor 2
+%global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 3
+%global nodejs_release 1
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -57,8 +57,8 @@
 # npm - from deps/npm/package.json
 %global npm_epoch 1
 %global npm_major 5
-%global npm_minor 0
-%global npm_patch 3
+%global npm_minor 3
+%global npm_patch 0
 %global npm_version %{npm_major}.%{npm_minor}.%{npm_patch}
 
 # In order to avoid needing to keep incrementing the release version for the
@@ -423,10 +423,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 
 %files -n npm
 %{_bindir}/npm
+%{_bindir}/npx
 %{_prefix}/lib/node_modules/npm
 %ghost %{_sysconfdir}/npmrc
 %ghost %{_sysconfdir}/npmignore
 %doc %{_mandir}/man*/npm*
+%doc %{_mandir}/man*/npx*
 %doc %{_mandir}/man5/package.json.5*
 %doc %{_mandir}/man5/package-lock.json.5*
 %doc %{_mandir}/man7/removing-npm.7*
@@ -441,6 +443,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Thu Jul 20 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.2.0-1
+- Update to v8.2.0
+- https://nodejs.org/en/blog/release/v8.2.0/
+- Update npm to 5.3.0
+- Adds npx command
+
 * Tue Jul 18 2017 Igor Gnatenko <ignatenko@redhat.com> - 1:8.1.4-3
 - s/BuildRequires/Requires/ for http-parser-devel%%{?_isa}
 
