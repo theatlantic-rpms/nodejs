@@ -18,7 +18,7 @@
 %global nodejs_epoch 1
 %global nodejs_major 8
 %global nodejs_minor 2
-%global nodejs_patch 0
+%global nodejs_patch 1
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
 %global nodejs_release 1
@@ -443,6 +443,10 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Fri Jul 21 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.2.1-1
+- Update to v8.2.1
+- https://nodejs.org/en/blog/release/v8.2.1/
+
 * Thu Jul 20 2017 Stephen Gallagher <sgallagh@redhat.com> - 1:8.2.0-1
 - Update to v8.2.0
 - https://nodejs.org/en/blog/release/v8.2.0/
