@@ -17,7 +17,7 @@
 # than a Fedora release lifecycle.
 %global nodejs_epoch 1
 %global nodejs_major 8
-%global nodejs_minor 3
+%global nodejs_minor 4
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
@@ -97,13 +97,6 @@ Source7: nodejs_native.attr
 # Disable running gyp on bundled deps we don't use
 Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 
-# EPEL only has OpenSSL 1.0.1, so we need to carry a patch on that platform
-Patch2: 0002-Use-openssl-1.0.1.patch
-
-# RHEL 7 still uses OpenSSL 1.0.1 for now, and it segfaults on SSL
-# Revert this upstream patch until RHEL 7 upgrades to 1.0.2
-Patch5: EPEL01-openssl101-compat.patch
-
 BuildRequires: python2-devel
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
@@ -172,6 +165,10 @@ Provides: bundled(c-ares) = %{c_ares_version}
 # against a shared system version entirely.
 # See https://github.com/nodejs/node/commit/d726a177ed59c37cf5306983ed00ecd858cfbbef
 Provides: bundled(v8) = %{v8_version}
+
+# As of v8.4.0, Node.js has http/2 support. They however don't provide --shared-<lib>
+# option yet.
+Provides: bundled(nghttp2) = 1.22.0
 
 # Make sure we keep NPM up to date when we update Node.js
 %if 0%{?epel}
@@ -283,6 +280,8 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-http-parser \
            --with-dtrace \
            --with-intl=system-icu \
+           --debug-http2 \
+           --debug-nghttp2 \
            --openssl-use-def-ca-store
 %else
 ./configure --prefix=%{_prefix} \
@@ -291,6 +290,8 @@ export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
            --shared-libuv \
            --without-dtrace \
            --with-intl=system-icu \
+           --debug-http2 \
+           --debug-nghttp2 \
            --openssl-use-def-ca-store
 %endif
 
@@ -443,6 +444,12 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Aug 16 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.4.0-1
+- Update to v8.4.0
+- https://nodejs.org/en/blog/release/v8.4.0/
+- http2 is now supported, add bundled nghttp2
+- remove openssl 1.0.1 patches, we won't be using them in fedora
+
 * Thu Aug 10 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.3.0-1
 - Update to v8.3.0
 - https://nodejs.org/en/blog/release/v8.3.0/
