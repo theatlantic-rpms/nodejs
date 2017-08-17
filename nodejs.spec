@@ -4,6 +4,12 @@
 
 %{?!_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
+%if 0%{?fedora} || 0%{?epel} > 7
+%global with_system_icu 1
+%else
+%global with_devtoolset 1
+%endif
+
 # ARM builds currently break on the Debug builds, so we'll just
 # build the standard runtime until that gets sorted out.
 %ifarch %{arm} aarch64 %{power64}
@@ -21,7 +27,7 @@
 %global nodejs_patch 0
 %global nodejs_abi %{nodejs_major}.%{nodejs_minor}
 %global nodejs_version %{nodejs_major}.%{nodejs_minor}.%{nodejs_patch}
-%global nodejs_release 1
+%global nodejs_release 2
 
 # == Bundled Dependency Versions ==
 # v8 - from deps/v8/include/v8-version.h
@@ -98,19 +104,25 @@ Source7: nodejs_native.attr
 Patch1: 0001-Disable-running-gyp-files-for-bundled-deps.patch
 
 # EPEL only has OpenSSL 1.0.1, so we need to carry a patch on that platform
-Patch2: 0002-Use-openssl-1.0.1.patch
 
 # RHEL 7 still uses OpenSSL 1.0.1 for now, and it segfaults on SSL
 # Revert this upstream patch until RHEL 7 upgrades to 1.0.2
-Patch5: EPEL01-openssl101-compat.patch
 
 BuildRequires: python2-devel
 BuildRequires: libuv-devel >= 1:1.9.1
 Requires: libuv >= 1:1.9.1
+%if 0%{?with_system_icu}
 BuildRequires: libicu-devel
+%endif
 BuildRequires: zlib-devel
+
+%if 0%{?with_devtoolset}
+BuildRequires: devtoolset-4-gcc >= 4.9.4
+BuildRequires: devtoolset-4-gcc-c++ >= 4.9.4
+%else
 BuildRequires: gcc >= 4.9.4
 BuildRequires: gcc-c++ >= 4.9.4
+%endif
 
 %if ! 0%{?bootstrap}
 BuildRequires: systemtap-sdt-devel
@@ -242,21 +254,24 @@ The API documentation for the Node.js JavaScript runtime.
 
 
 %prep
+%if 0%{?with_devtoolset}
+. /opt/rh/devtoolset-4/enable
+%endif
 %setup -q -n node-v%{nodejs_version}
 
 # remove bundled dependencies that we aren't building
 %patch1 -p1
-rm -rf deps/icu-small \
-       deps/uv \
+rm -rf deps/uv \
        deps/zlib
-
-%if 0%{?epel}
-%patch2 -p1
-%patch5 -p1
+%if 0%{?with_system_icu}
+rm -rf deps/icu-small
 %endif
 
 
 %build
+%if 0%{?with_devtoolset}
+. /opt/rh/devtoolset-4/enable
+%endif
 # build with debugging symbols and add defines from libuv (#892601)
 # Node's v8 breaks with GCC 6 because of incorrect usage of methods on
 # NULL objects. We need to pass -fno-delete-null-pointer-checks
@@ -275,24 +290,18 @@ export CXXFLAGS='%{optflags} -g \
 export CFLAGS="$(echo ${CFLAGS} | tr '\n\\' '  ')"
 export CXXFLAGS="$(echo ${CXXFLAGS} | tr '\n\\' '  ')"
 
+./configure --prefix=%{_prefix} \
+           --shared-openssl \
+           --shared-zlib \
+           --shared-libuv \
 %if ! 0%{?bootstrap}
-./configure --prefix=%{_prefix} \
-           --shared-openssl \
-           --shared-zlib \
-           --shared-libuv \
            --shared-http-parser \
-           --with-dtrace \
-           --with-intl=system-icu \
-           --openssl-use-def-ca-store
-%else
-./configure --prefix=%{_prefix} \
-           --shared-openssl \
-           --shared-zlib \
-           --shared-libuv \
-           --without-dtrace \
-           --with-intl=system-icu \
-           --openssl-use-def-ca-store
 %endif
+           --with-dtrace \
+%if 0%{?with_system_icu}
+           --with-intl=system-icu \
+%endif
+           --openssl-use-def-ca-store
 
 %if %{?with_debug} == 1
 # Setting BUILDTYPE=Debug builds both release and debug binaries
@@ -303,6 +312,10 @@ make BUILDTYPE=Release %{?_smp_mflags}
 
 
 %install
+%if 0%{?with_devtoolset}
+. /opt/rh/devtoolset-4/enable
+%endif
+
 rm -rf %{buildroot}
 
 ./tools/install.py install %{buildroot} %{_prefix}
@@ -381,6 +394,9 @@ rm -f %{buildroot}/%{_defaultdocdir}/node/lldb_commands.py \
       %{buildroot}/%{_defaultdocdir}/node/lldbinit
 
 %check
+%if 0%{?with_devtoolset}
+. /opt/rh/devtoolset-4/enable
+%endif
 # Fail the build if the versions don't match
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.node, '%{nodejs_version}')"
 %{buildroot}/%{_bindir}/node -e "require('assert').equal(process.versions.v8, '%{v8_version}')"
@@ -425,8 +441,8 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_bindir}/npm
 %{_bindir}/npx
 %{_prefix}/lib/node_modules/npm
-%ghost %{_sysconfdir}/npmrc
-%ghost %{_sysconfdir}/npmignore
+%ghost %attr(0644,root,root) %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/npmrc
+%ghost %attr(0644,root,root) %verify(not md5 size mtime) %config(noreplace,missingok) %{_sysconfdir}/npmignore
 %doc %{_mandir}/man*/npm*
 %doc %{_mandir}/man*/npx*
 %doc %{_mandir}/man5/package.json.5*
@@ -443,6 +459,9 @@ NODE_PATH=%{buildroot}%{_prefix}/lib/node_modules %{buildroot}/%{_bindir}/node -
 %{_pkgdocdir}/npm/doc
 
 %changelog
+* Wed Aug 16 2017 Frankie Dintino <fdintino@gmail.com> - 1:8.3.0-2
+- Fix build on el6 and el7
+
 * Thu Aug 10 2017 Zuzana Svetlikova <zsvetlik@redhat.com> - 1:8.3.0-1
 - Update to v8.3.0
 - https://nodejs.org/en/blog/release/v8.3.0/
